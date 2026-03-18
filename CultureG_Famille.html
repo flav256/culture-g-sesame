@@ -298,6 +298,29 @@ function backFromLeaderboard() {
 ══════════════════════════════════════════════ */
 function buildUserGrid() {
   const grid = document.getElementById('user-grid');
+  _renderUserGrid(grid); // local d'abord (instantané)
+  // puis sync Firebase → re-render
+  db.ref('scores').once('value').then(snap => {
+    const fbAll = snap.val() || {};
+    USERS.forEach(u => {
+      const fb = fbAll[u.name.toLowerCase()];
+      if (!fb) return;
+      const ul = u.name.toLowerCase();
+      const local = getUD(u.name);
+      if (fb.total > local.total) {
+        localStorage.setItem(`cg2_total_${ul}`,    fb.total.toString());
+        localStorage.setItem(`cg2_correct_${ul}`,  fb.correct.toString());
+      }
+      if (fb.best > local.best)
+        localStorage.setItem(`cg2_best_${ul}`, fb.best.toString());
+      if (fb.sessions > local.sessions)
+        localStorage.setItem(`cg2_sessions_${ul}`, fb.sessions.toString());
+    });
+    _renderUserGrid(grid);
+  }).catch(() => {});
+}
+
+function _renderUserGrid(grid) {
   grid.innerHTML = '';
   USERS.forEach(u => {
     const d = getUD(u.name);
@@ -557,7 +580,7 @@ function buildLeaderboard() {
 function renderLeaderboardData() {
   const stats = USERS.map(u => {
     const d = getUD(u.name);
-    return { ...u, ...d, pct: d.total >= 5 ? Math.round(d.correct/d.total*100) : null };
+    return { ...u, ...d, pct: d.total >= 1 ? Math.round(d.correct/d.total*100) : null };
   }).sort((a,b) => {
     if (a.pct === null && b.pct === null) return 0;
     if (a.pct === null) return 1;
