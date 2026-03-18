@@ -349,7 +349,16 @@ function getAvailable() {
     saveUD(currentUser.name, d);
     fresh = pool.filter(q => !d.used.includes(q.id));
   }
-  return shuffle(fresh).slice(0, 10);
+  return shuffle(fresh).slice(0, 10).map(shuffleOpts);
+}
+
+function shuffleOpts(q) {
+  const idx = [0,1,2,3];
+  for (let i=3; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]] = [idx[j],idx[i]];
+  }
+  return { ...q, opts: idx.map(i => q.opts[i]), ans: idx.indexOf(q.ans) };
 }
 
 function startSession() {
