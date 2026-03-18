@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Culture G — Famille · SESAME / ACCES</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; color: #1a1a1a; }
+  .app { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── USER SELECT ── */
+  .welcome-card { background: #1a3a5c; border-radius: 20px; padding: 28px 20px 20px; text-align: center; margin-bottom: 16px; }
+  .welcome-title { font-size: 24px; font-weight: 700; color: white; }
+  .welcome-sub { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 6px; margin-bottom: 20px; }
+  .user-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .user-card { background: white; border-radius: 16px; padding: 20px 16px; text-align: center; cursor: pointer; border: 2.5px solid transparent; transition: all 0.18s; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .user-card:active { transform: scale(0.96); }
+  .user-avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 10px; font-weight: 700; color: white; }
+  .user-name { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .user-stat { font-size: 12px; color: #888; }
+  .leaderboard-link { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); color: white; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; width: 100%; transition: background 0.15s; }
+  .leaderboard-link:active { background: rgba(255,255,255,0.22); }
+
+  /* ── HEADER ── */
+  .header { border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .header-user { display: flex; align-items: center; gap: 10px; }
+  .header-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: white; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+  .header-name { font-size: 17px; font-weight: 600; color: white; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .header-actions { display: flex; gap: 6px; }
+  .hdr-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: white; border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .hdr-btn:active { background: rgba(255,255,255,0.28); }
+  .stats-row { display: flex; gap: 8px; }
+  .stat-pill { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 12px; font-size: 13px; text-align: center; flex: 1; }
+  .stat-pill-label { font-size: 10px; color: rgba(255,255,255,0.7); display: block; }
+  .stat-pill-val { font-size: 16px; font-weight: 600; color: white; }
+
+  /* ── THEME BAR ── */
+  .theme-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .theme-btn { background: white; border: 1.5px solid #ddd; border-radius: 20px; padding: 7px 14px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .theme-btn.active { border-color: currentColor; font-weight: 600; }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-bar { height: 5px; background: #ddd; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .progress-label { font-size: 12px; color: #888; margin-top: 4px; text-align: right; }
+
+  /* ── QUESTION ── */
+  .question-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .q-theme-badge { font-size: 11px; border-radius: 20px; padding: 4px 12px; font-weight: 600; }
+  .q-num { font-size: 12px; color: #aaa; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 18px; line-height: 1.5; }
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f5f5f7; border: 1.5px solid transparent; border-radius: 12px; padding: 13px 16px; text-align: left; font-size: 15px; color: #1a1a1a; cursor: pointer; font-family: inherit; transition: all 0.15s; display: flex; gap: 12px; align-items: flex-start; width: 100%; }
+  .option-btn:active { transform: scale(0.98); }
+  .option-btn.selected { border-color: #1a3a5c; background: #e8f0fb; }
+  .option-btn.correct { background: #eaf3de; border-color: #5a9e2f; color: #2d6a0a; }
+  .option-btn.wrong { background: #fde8e8; border-color: #cc3333; color: #7a1a1a; }
+  .option-btn.missed { background: #eaf3de; border-color: #5a9e2f; color: #2d6a0a; opacity: 0.75; }
+  .option-btn:disabled { cursor: default; }
+  .option-letter { font-weight: 700; min-width: 20px; font-size: 14px; margin-top: 1px; }
+  .feedback-box { border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.65; }
+  .feedback-box.correct { background: #eaf3de; border: 1px solid #5a9e2f; color: #2d6a0a; }
+  .feedback-box.wrong { background: #fde8e8; border: 1px solid #cc3333; color: #7a1a1a; }
+  .feedback-title { font-weight: 600; margin-bottom: 6px; font-size: 15px; }
+  .next-btn { border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 14px; font-family: inherit; color: white; }
+
+  /* ── END CARD ── */
+  .end-card { background: white; border-radius: 16px; padding: 28px 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .end-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .end-pct { font-size: 32px; font-weight: 700; color: white; }
+  .end-msg { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .end-sub { font-size: 14px; color: #888; margin-bottom: 24px; }
+  .end-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .end-stat { background: #f5f5f7; border-radius: 12px; padding: 14px; }
+  .end-stat-num { font-size: 26px; font-weight: 700; }
+  .end-stat-label { font-size: 12px; color: #888; margin-top: 2px; }
+  .restart-btn { border: none; border-radius: 12px; padding: 14px 32px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; color: white; }
+  .total-seen { font-size: 12px; color: #aaa; margin-top: 12px; }
+
+  /* ── LEADERBOARD ── */
+  .lb-header { background: #1a3a5c; border-radius: 16px; padding: 20px; margin-bottom: 16px; text-align: center; color: white; }
+  .lb-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .lb-sub { font-size: 13px; opacity: 0.7; }
+  .lb-back { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 14px; }
+  .podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .podium-block { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .podium-avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+  .podium-rank { font-size: 20px; }
+  .podium-name { font-size: 13px; font-weight: 600; }
+  .podium-pct { font-size: 12px; color: #666; }
+  .podium-bar { border-radius: 8px 8px 0 0; width: 70px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
+  .lb-list { display: flex; flex-direction: column; gap: 10px; }
+  .lb-row { background: white; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .lb-pos { font-size: 18px; font-weight: 700; color: #aaa; min-width: 24px; text-align: center; }
+  .lb-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; }
+  .lb-info { flex: 1; }
+  .lb-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .lb-details { font-size: 12px; color: #888; }
+  .lb-score { text-align: right; }
+  .lb-pct { font-size: 22px; font-weight: 700; }
+  .lb-total { font-size: 11px; color: #aaa; }
+  .lb-empty { font-size: 13px; color: #aaa; text-align: center; padding: 20px; }
+  .lb-reset-user { font-size: 11px; color: #cc3333; background: none; border: none; cursor: pointer; font-family: inherit; text-decoration: underline; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ SCREEN 1 : USER SELECT ═══ -->
+  <div id="screen-select" class="screen active">
+    <div class="welcome-card">
+      <div class="welcome-title">Culture G · Famille</div>
+      <div class="welcome-sub">SESAME · ACCES · Écoles de Commerce<br>150 questions · 8 thèmes</div>
+    </div>
+    <div class="user-grid" id="user-grid"></div>
+    <div style="padding: 0 4px;">
+      <button class="leaderboard-link" onclick="showLeaderboard()" style="background:#1a3a5c; border-color: rgba(255,255,255,0.2);">🏆 Voir le classement famille</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2 : QCM ═══ -->
+  <div id="screen-qcm" class="screen">
+    <div class="header" id="qcm-header">
+      <div class="header-top">
+        <div class="header-user">
+          <div class="header-avatar" id="hdr-avatar"></div>
+          <div>
+            <div class="header-name" id="hdr-name"></div>
+            <div class="header-sub">SESAME · ACCES · Écoles de Commerce</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="hdr-btn" onclick="showLeaderboard()">🏆</button>
+          <button class="hdr-btn" onclick="showSelect()">⟵</button>
+          <button class="hdr-btn" id="reset-btn" onclick="resetUser()">↺</button>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-pill"><span class="stat-pill-label">Session</span><span class="stat-pill-val" id="score-display">0/0</span></div>
+        <div class="stat-pill"><span class="stat-pill-label">Série</span><span class="stat-pill-val" id="streak-display">0</span></div>
+        <div class="stat-pill"><span class="stat-pill-label">Global</span><span class="stat-pill-val" id="total-display">0/0</span></div>
+      </div>
+    </div>
+    <div class="theme-bar" id="theme-bar"></div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label">Question 1 / 10</div>
+    </div>
+    <div id="qcm-body"></div>
+  </div>
+
+  <!-- ═══ SCREEN 3 : LEADERBOARD ═══ -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="lb-header">
+      <div class="lb-title">🏆 Classement Famille</div>
+      <div class="lb-sub">Score global sur toutes les sessions</div>
+      <button class="lb-back" onclick="backFromLeaderboard()">← Retour</button>
+    </div>
+    <div id="podium-area"></div>
+    <div class="lb-list" id="lb-list"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ══════════════════════════════════════════════
+   USERS
+══════════════════════════════════════════════ */
+const USERS = [
+  { name:'Paola',    color:'#e91e8c', initials:'P' },
+  { name:'Eden',     color:'#2e7d32', initials:'E' },
+  { name:'Oscar',    color:'#1565c0', initials:'O' },
+  { name:'Flavien',  color:'#e64a19', initials:'F' },
+  { name:'Virginie', color:'#6a1b9a', initials:'V' },
+];
+
+let currentUser = null;
+let activeTheme = 'Tous';
+let sessionQ = [], current = 0, answered = false;
+let correct = 0, streak = 0, bestStreak = 0;
+
+/* ══════════════════════════════════════════════
+   STORAGE
+══════════════════════════════════════════════ */
+function lk(u, field) { return `cg2_${field}_${u.toLowerCase()}`; }
+
+function getUD(name) {
+  const u = name.toLowerCase();
+  return {
+    used:     JSON.parse(localStorage.getItem(`cg2_used_${u}`)    || '[]'),
+    total:    parseInt(localStorage.getItem(`cg2_total_${u}`)     || '0'),
+    correct:  parseInt(localStorage.getItem(`cg2_correct_${u}`)   || '0'),
+    best:     parseInt(localStorage.getItem(`cg2_best_${u}`)      || '0'),
+    sessions: parseInt(localStorage.getItem(`cg2_sessions_${u}`)  || '0'),
+  };
+}
+
+function saveUD(name, d) {
+  const u = name.toLowerCase();
+  localStorage.setItem(`cg2_used_${u}`,    JSON.stringify(d.used));
+  localStorage.setItem(`cg2_total_${u}`,   d.total.toString());
+  localStorage.setItem(`cg2_correct_${u}`, d.correct.toString());
+  localStorage.setItem(`cg2_best_${u}`,    d.best.toString());
+  localStorage.setItem(`cg2_sessions_${u}`,d.sessions.toString());
+}
+
+/* ══════════════════════════════════════════════
+   SCREENS
+══════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showSelect() { buildUserGrid(); showScreen('screen-select'); }
+
+function selectUser(name) {
+  currentUser = USERS.find(u => u.name === name);
+  buildHeader();
+  buildThemeBar();
+  activeTheme = 'Tous';
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === 'Tous');
+  });
+  showScreen('screen-qcm');
+  startSession();
+}
+
+function showLeaderboard() { buildLeaderboard(); showScreen('screen-leaderboard'); }
+
+function backFromLeaderboard() {
+  if (currentUser) showScreen('screen-qcm');
+  else showSelect();
+}
+
+/* ══════════════════════════════════════════════
+   BUILD USER SELECT
+══════════════════════════════════════════════ */
+function buildUserGrid() {
+  const grid = document.getElementById('user-grid');
+  grid.innerHTML = '';
+  USERS.forEach(u => {
+    const d = getUD(u.name);
+    const pct = d.total > 0 ? Math.round(d.correct/d.total*100) : null;
+    const card = document.createElement('div');
+    card.className = 'user-card';
+    card.style.borderColor = 'transparent';
+    card.innerHTML = `
+      <div class="user-avatar" style="background:${u.color}">${u.initials}</div>
+      <div class="user-name">${u.name}</div>
+      <div class="user-stat">${pct !== null ? pct+'% · '+d.total+' réponses' : 'Pas encore joué'}</div>`;
+    card.onclick = () => selectUser(u.name);
+    card.onmouseover = () => card.style.borderColor = u.color;
+    card.onmouseout  = () => card.style.borderColor = 'transparent';
+    grid.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   BUILD HEADER
+══════════════════════════════════════════════ */
+function buildHeader() {
+  const u = currentUser;
+  document.getElementById('qcm-header').style.background = u.color;
+  document.getElementById('hdr-avatar').textContent = u.initials;
+  document.getElementById('hdr-name').textContent = u.name;
+  document.getElementById('progress-fill').style.background = u.color;
+}
+
+/* ══════════════════════════════════════════════
+   BUILD THEME BAR
+══════════════════════════════════════════════ */
+const THEMES = ['Tous','Économie','Histoire','Géopolitique','Actualité','Culture G','Sciences','Arts & Lettres','Sport'];
+
+function buildThemeBar() {
+  const bar = document.getElementById('theme-bar');
+  bar.innerHTML = '';
+  THEMES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'theme-btn' + (t === activeTheme ? ' active' : '');
+    btn.textContent = t;
+    btn.style.setProperty('color', t === activeTheme ? currentUser.color : '#555');
+    btn.style.borderColor = t === activeTheme ? currentUser.color : '#ddd';
+    btn.onclick = () => {
+      activeTheme = t;
+      document.querySelectorAll('.theme-btn').forEach(b => {
+        const on = b.textContent === t;
+        b.classList.toggle('active', on);
+        b.style.color = on ? currentUser.color : '#555';
+        b.style.borderColor = on ? currentUser.color : '#ddd';
+      });
+      startSession();
+    };
+    bar.appendChild(btn);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   UPDATE GLOBAL DISPLAY
+══════════════════════════════════════════════ */
+function updateGlobalDisplay() {
+  const d = getUD(currentUser.name);
+  document.getElementById('total-display').textContent = d.correct + '/' + d.total;
+}
+
+/* ══════════════════════════════════════════════
+   RESET USER
+══════════════════════════════════════════════ */
+function resetUser() {
+  if (!confirm(`Remettre à zéro le score de ${currentUser.name} ?`)) return;
+  const u = currentUser.name.toLowerCase();
+  ['used','total','correct','best','sessions'].forEach(f =>
+    localStorage.removeItem(`cg2_${f}_${u}`)
+  );
+  startSession();
+}
+
+/* ══════════════════════════════════════════════
+   SESSION LOGIC
+══════════════════════════════════════════════ */
+function shuffle(arr) {
+  for (let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function getAvailable() {
+  const d = getUD(currentUser.name);
+  let pool = ALL_QUESTIONS.map((q,i) => ({...q, id:i}));
+  if (activeTheme !== 'Tous') pool = pool.filter(q => q.theme === activeTheme);
+  let fresh = pool.filter(q => !d.used.includes(q.id));
+  if (fresh.length < 5) {
+    // reset used for this theme pool only
+    const poolIds = pool.map(q=>q.id);
+    d.used = d.used.filter(id => !poolIds.includes(id));
+    saveUD(currentUser.name, d);
+    fresh = pool.filter(q => !d.used.includes(q.id));
+  }
+  return shuffle(fresh).slice(0, 10);
+}
+
+function startSession() {
+  sessionQ = getAvailable();
+  current = 0; answered = false; correct = 0; streak = 0; bestStreak = 0;
+  updateGlobalDisplay();
+  render();
+}
+
+/* ══════════════════════════════════════════════
+   RENDER QUESTION
+══════════════════════════════════════════════ */
+function render() {
+  if (current >= sessionQ.length) { renderEnd(); return; }
+  const q = sessionQ[current];
+  const pct = Math.round(current / sessionQ.length * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question '+(current+1)+' / '+sessionQ.length;
+  document.getElementById('score-display').textContent = correct+'/'+current;
+  document.getElementById('streak-display').textContent = streak;
+  const letters = ['A','B','C','D'];
+  const badgeBg = themeColor(q.theme)+'22';
+  const badgeColor = themeColor(q.theme);
+  document.getElementById('qcm-body').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-theme-badge" style="background:${badgeBg};color:${badgeColor}">${q.theme}</span>
+        <span class="q-num">#${q.id+1}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options-grid">
+        ${q.opts.map((o,i)=>`<button class="option-btn" onclick="choose(${i})" id="opt-${i}"><span class="option-letter">${letters[i]}</span><span>${o}</span></button>`).join('')}
+      </div>
+      <div id="feedback"></div>
+      <div id="next-area"></div>
+    </div>`;
+}
+
+function themeColor(theme) {
+  const map = {
+    'Économie':'#1a3a5c','Histoire':'#7b3f00','Géopolitique':'#1b5e20',
+    'Actualité':'#4a148c','Culture G':'#880e4f','Sciences':'#006064',
+    'Arts & Lettres':'#bf360c','Sport':'#1a237e'
+  };
+  return map[theme] || '#1a3a5c';
+}
+
+/* ══════════════════════════════════════════════
+   CHOOSE ANSWER
+══════════════════════════════════════════════ */
+function choose(idx) {
+  if (answered) return;
+  answered = true;
+  const q = sessionQ[current];
+  const isCorrect = idx === q.ans;
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((_,i) => {
+    const btn = document.getElementById('opt-'+i);
+    btn.disabled = true;
+    if (i===q.ans && i===idx) btn.className='option-btn correct';
+    else if (i===q.ans) btn.className='option-btn missed';
+    else if (i===idx) btn.className='option-btn wrong';
+  });
+  if (isCorrect) { correct++; streak++; if(streak>bestStreak) bestStreak=streak; }
+  else { streak=0; }
+
+  // Save to user data
+  const d = getUD(currentUser.name);
+  d.total++;
+  if (isCorrect) d.correct++;
+  d.used.push(q.id);
+  saveUD(currentUser.name, d);
+
+  document.getElementById('score-display').textContent = correct+'/'+(current+1);
+  document.getElementById('streak-display').textContent = streak;
+  updateGlobalDisplay();
+
+  document.getElementById('feedback').innerHTML = `
+    <div class="feedback-box ${isCorrect?'correct':'wrong'}">
+      <div class="feedback-title">${isCorrect ? 'Bonne réponse !' : 'Incorrect — bonne réponse : '+letters[q.ans]}</div>
+      ${q.exp}
+    </div>`;
+  document.getElementById('next-area').innerHTML = `
+    <button class="next-btn" style="background:${currentUser.color}" onclick="next()">
+      ${current+1<sessionQ.length ? 'Question suivante →' : 'Voir mes résultats'}
+    </button>`;
+}
+
+function next() { current++; answered=false; render(); }
+
+/* ══════════════════════════════════════════════
+   END CARD
+══════════════════════════════════════════════ */
+function renderEnd() {
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Série terminée !';
+  const pct = Math.round(correct/sessionQ.length*100);
+  const msg = pct>=80 ? 'Excellent ! 🎉' : pct>=60 ? 'Bien joué ! 👍' : 'Continue, ça vient ! 💪';
+  const d = getUD(currentUser.name);
+  d.sessions++;
+  if (pct > d.best) d.best = pct;
+  saveUD(currentUser.name, d);
+  document.getElementById('qcm-body').innerHTML = `
+    <div class="end-card">
+      <div class="end-circle" style="background:${currentUser.color}">
+        <div class="end-pct">${pct}%</div>
+      </div>
+      <div class="end-msg">${msg}</div>
+      <div class="end-sub">${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${sessionQ.length}</div>
+      <div class="end-grid">
+        <div class="end-stat"><div class="end-stat-num" style="color:${currentUser.color}">${correct}</div><div class="end-stat-label">Correctes</div></div>
+        <div class="end-stat"><div class="end-stat-num" style="color:${currentUser.color}">${sessionQ.length-correct}</div><div class="end-stat-label">Erreurs</div></div>
+        <div class="end-stat"><div class="end-stat-num" style="color:${currentUser.color}">${bestStreak}</div><div class="end-stat-label">Meilleure série</div></div>
+        <div class="end-stat"><div class="end-stat-num" style="color:${currentUser.color}">${d.best}%</div><div class="end-stat-label">Meilleur score</div></div>
+      </div>
+      <button class="restart-btn" style="background:${currentUser.color}" onclick="startSession()">Nouvelle série</button>
+      <div class="total-seen">${ALL_QUESTIONS.length} questions · Score global : ${d.correct}/${d.total}</div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   LEADERBOARD
+══════════════════════════════════════════════ */
+function buildLeaderboard() {
+  const stats = USERS.map(u => {
+    const d = getUD(u.name);
+    return { ...u, ...d, pct: d.total >= 5 ? Math.round(d.correct/d.total*100) : null };
+  }).sort((a,b) => {
+    if (a.pct === null && b.pct === null) return 0;
+    if (a.pct === null) return 1;
+    if (b.pct === null) return -1;
+    if (b.pct !== a.pct) return b.pct - a.pct;
+    return b.total - a.total;
+  });
+
+  // Podium (top 3 with data)
+  const ranked = stats.filter(s => s.pct !== null);
+  const podiumEl = document.getElementById('podium-area');
+  if (ranked.length >= 2) {
+    const order = ranked.length >= 3 ? [ranked[1], ranked[0], ranked[2]] : [ranked[0], ranked[1]];
+    const heights = ranked.length >= 3 ? [80, 110, 60] : [90, 110];
+    const sizes   = ranked.length >= 3 ? [44, 56, 38]  : [44, 56];
+    podiumEl.innerHTML = `<div class="podium" style="margin-bottom:20px">
+      ${order.map((u,i) => `
+        <div class="podium-block">
+          <div class="podium-avatar" style="width:${sizes[i]}px;height:${sizes[i]}px;background:${u.color};font-size:${sizes[i]*0.38}px">${u.initials}</div>
+          <div class="podium-rank">${['🥈','🥇','🥉'][i]}</div>
+          <div class="podium-name">${u.name}</div>
+          <div class="podium-pct">${u.pct}%</div>
+          <div class="podium-bar" style="height:${heights[i]}px;background:${u.color}22;border-top:3px solid ${u.color}"></div>
+        </div>`).join('')}
+    </div>`;
+  } else {
+    podiumEl.innerHTML = '';
+  }
+
+  // List
+  const list = document.getElementById('lb-list');
+  list.innerHTML = '';
+  stats.forEach((u, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row';
+    const medals = ['🥇','🥈','🥉'];
+    const pos = u.pct !== null ? (medals[i] || (i+1)) : '—';
+    row.innerHTML = `
+      <div class="lb-pos">${pos}</div>
+      <div class="lb-avatar" style="background:${u.color}">${u.initials}</div>
+      <div class="lb-info">
+        <div class="lb-name">${u.name}</div>
+        <div class="lb-details">${u.total} questions · ${u.sessions} série${u.sessions>1?'s':''} · Meilleur : ${u.best>0?u.best+'%':'—'}</div>
+      </div>
+      <div class="lb-score">
+        <div class="lb-pct" style="color:${u.color}">${u.pct !== null ? u.pct+'%' : '—'}</div>
+        <div class="lb-total">${u.correct}/${u.total}</div>
+      </div>`;
+    list.appendChild(row);
+  });
+
+  if (stats.every(s => s.total === 0)) {
+    list.innerHTML = '<div class="lb-empty">Personne n\'a encore joué. À vous ! 🎯</div>';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+buildUserGrid();
+
+/* ══════════════════════════════════════════════
+   QUESTIONS — 150 au total
+   Thèmes : Économie | Histoire | Géopolitique |
+            Actualité | Culture G | Sciences |
+            Arts & Lettres | Sport
+══════════════════════════════════════════════ */
+const ALL_QUESTIONS = [
+  /* ─── ÉCONOMIE ─── */
+  { theme:"Économie", q:"Qu'est-ce que le PIB d'un pays ?", opts:["Le total des dépenses de l'État","La valeur totale des biens et services produits en un an","Le montant des importations moins les exportations","Le budget national annuel"], ans:1, exp:"Le PIB (Produit Intérieur Brut) mesure la richesse créée par un pays en un an. C'est l'indicateur économique le plus utilisé pour comparer les pays entre eux." },
+  { theme:"Économie", q:"Qu'est-ce que l'inflation ?", opts:["Une baisse généralisée des prix","Une hausse du chômage","Une hausse généralisée et durable des prix","Une augmentation des exportations"], ans:2, exp:"L'inflation, c'est quand les prix augmentent en moyenne. Elle érode le pouvoir d'achat. La BCE vise une inflation autour de 2% dans la zone euro." },
+  { theme:"Économie", q:"Quel organisme gère la politique monétaire de la zone euro ?", opts:["Le FMI","La Banque Mondiale","La BCE","La Commission Européenne"], ans:2, exp:"La BCE (Banque Centrale Européenne), basée à Francfort, fixe les taux d'intérêt pour la zone euro. Son objectif : maintenir l'inflation proche de 2%." },
+  { theme:"Économie", q:"Qu'est-ce qu'un monopole ?", opts:["Un marché avec beaucoup de concurrents","Une situation où un seul vendeur domine le marché","Une entreprise qui exporte beaucoup","Un accord entre plusieurs entreprises"], ans:1, exp:"Dans un monopole, une seule entreprise domine un marché entier. Elle fixe ses prix librement, sans pression concurrentielle. Les monopoles sont souvent régulés par les États." },
+  { theme:"Économie", q:"Qu'est-ce que le taux de chômage ?", opts:["Le pourcentage de personnes sans emploi parmi tous les habitants","Le pourcentage d'actifs sans emploi qui en cherchent un","Le nombre de licenciements dans l'année","Le pourcentage d'entreprises en faillite"], ans:1, exp:"Le taux de chômage mesure la part des actifs (qui travaillent ou cherchent du travail) qui n'ont pas d'emploi. En France il est autour de 7-8%." },
+  { theme:"Économie", q:"Qu'est-ce que la RSE ?", opts:["Un impôt sur les sociétés","La Responsabilité Sociale des Entreprises","Un traité de libre-échange","Un indice boursier"], ans:1, exp:"La RSE désigne l'engagement des entreprises à avoir un impact positif sur la société et l'environnement, au-delà du simple profit. Sujet très présent en entretien d'école de commerce." },
+  { theme:"Économie", q:"Qu'est-ce qu'un oligopole ?", opts:["Un marché dominé par quelques grandes entreprises","Un marché sans concurrence","Une entreprise qui investit à l'étranger","Un marché avec des milliers de petits vendeurs"], ans:0, exp:"Un oligopole, c'est quand un secteur est dominé par quelques grandes entreprises. Exemples : constructeurs automobiles, opérateurs téléphoniques, grandes banques." },
+  { theme:"Économie", q:"Qu'appelle-t-on le pouvoir d'achat ?", opts:["Le revenu brut d'un ménage","La quantité de biens et services qu'on peut acheter avec son revenu","Le montant des impôts payés","Le prix moyen d'un panier de courses"], ans:1, exp:"Le pouvoir d'achat mesure ce qu'on peut vraiment acheter avec son salaire. Il baisse quand l'inflation augmente plus vite que les salaires — ce qui s'est produit en 2022-2023." },
+  { theme:"Économie", q:"Qu'est-ce qu'une start-up ?", opts:["Une grande entreprise en difficulté","Une jeune entreprise à fort potentiel de croissance","Une entreprise publique en privatisation","Une filiale d'un grand groupe"], ans:1, exp:"Une start-up est une jeune entreprise innovante, souvent dans le numérique, avec un fort potentiel de croissance rapide. Elle cherche un modèle économique scalable et lève des fonds auprès d'investisseurs." },
+  { theme:"Économie", q:"Qu'est-ce que le libre-échange ?", opts:["Une politique qui protège les industries nationales","La suppression des barrières douanières pour faciliter le commerce international","Un échange de marchandises sans argent","Une politique monétaire expansive"], ans:1, exp:"Le libre-échange, c'est la suppression des barrières (droits de douane, quotas) pour permettre la libre circulation des biens et services entre pays. Il est promu par l'OMC mais critiqué pour les délocalisations qu'il génère." },
+  { theme:"Économie", q:"Qu'est-ce qu'un business model ?", opts:["Le plan marketing d'une entreprise","La façon dont une entreprise crée et capte de la valeur","Le budget annuel d'une entreprise","L'organigramme d'une société"], ans:1, exp:"Un business model décrit comment une entreprise gagne de l'argent. Exemples : abonnement (Netflix), commission (Airbnb), freemium (Spotify), vente directe (Zara)." },
+  { theme:"Économie", q:"Qu'est-ce que la valeur ajoutée ?", opts:["Le bénéfice d'une entreprise","La différence entre le prix de vente et le coût des matières premières","Le total des salaires versés","Le chiffre d'affaires divisé par les employés"], ans:1, exp:"La valeur ajoutée = prix de vente - coût des consommations intermédiaires. C'est la richesse créée par l'entreprise. La somme de toutes les VA d'un pays = le PIB." },
+  { theme:"Économie", q:"Qu'est-ce que la déflation et pourquoi est-elle dangereuse ?", opts:["Une hausse rapide des prix","Une baisse généralisée des prix qui pousse les consommateurs à différer leurs achats","Une baisse de la production industrielle","Une politique de réduction des impôts"], ans:1, exp:"La déflation, c'est une baisse des prix. Contrairement à ce qu'on croit, c'est dangereux : les consommateurs attendent que les prix baissent encore, la demande s'effondre, les entreprises licencient. Le Japon l'a vécu dans les années 1990-2010." },
+  { theme:"Économie", q:"Qu'est-ce qu'une action en bourse ?", opts:["Un prêt accordé à une entreprise","Un titre de propriété donnant droit à une part du capital d'une entreprise","Un contrat d'assurance financière","Un bon d'achat émis par une banque"], ans:1, exp:"Acheter une action, c'est devenir propriétaire d'une fraction d'une entreprise. L'actionnaire touche des dividendes si l'entreprise fait des bénéfices et peut revendre ses actions en bourse." },
+  { theme:"Économie", q:"Qu'est-ce que le protectionnisme ?", opts:["Une politique de promotion des exportations","Une politique qui protège les industries nationales avec des barrières douanières","Un accord commercial international","Une assurance contre les faillites d'entreprises"], ans:1, exp:"Le protectionnisme utilise des droits de douane, quotas ou normes pour freiner les importations et protéger les industries nationales. Donald Trump a relancé ce débat avec ses taxes sur les produits chinois." },
+  { theme:"Économie", q:"Qu'est-ce que la stagflation ?", opts:["Une croissance économique très rapide","La combinaison d'une inflation élevée et d'une stagnation économique","Une période de déflation avec chômage bas","Un excès d'investissement public"], ans:1, exp:"La stagflation combine le pire des deux mondes : inflation élevée ET croissance faible ET chômage fort. C'est ce que les pays occidentaux ont vécu dans les années 1970 après le choc pétrolier." },
+  { theme:"Économie", q:"Qu'est-ce qu'une bulle spéculative ?", opts:["Une augmentation normale et durable des prix","Une hausse des prix d'actifs déconnectée de leur valeur réelle, qui finit par éclater","Un investissement très rentable","Un marché en forte croissance stable"], ans:1, exp:"Une bulle, c'est quand les prix d'actifs (actions, immobilier, crypto) montent bien au-delà de leur valeur réelle à cause de la spéculation. Exemples : bulle internet (2000), bulle immobilière (2007), bulle crypto (2021)." },
+  { theme:"Économie", q:"Qu'est-ce qu'un taux directeur de banque centrale ?", opts:["Le taux d'imposition des grandes entreprises","Le taux auquel la banque centrale prête aux banques commerciales, influençant toute l'économie","Le taux de change entre devises","Le taux de croissance économique cible"], ans:1, exp:"En fixant son taux directeur, la BCE influence le coût du crédit. Taux bas → crédits moins chers → investissements augmentent. Taux élevés → on freine l'inflation. La BCE a fortement monté ses taux en 2022-2023." },
+  { theme:"Économie", q:"Qu'est-ce que l'économie collaborative ?", opts:["Un système où l'État gère tous les secteurs","Un modèle économique basé sur le partage de biens et services entre particuliers via des plateformes","Une coopérative d'entreprises publiques","Un accord commercial entre pays"], ans:1, exp:"L'économie collaborative met en relation des particuliers pour partager, louer ou échanger. Exemples : Airbnb (logement), BlaBlaCar (covoiturage), Vinted (vêtements). Elle perturbe les secteurs traditionnels." },
+  { theme:"Économie", q:"Qu'est-ce que le crowdfunding ?", opts:["Un investissement réservé aux grandes fortunes","Un financement participatif par lequel un grand nombre de personnes financent un projet","Un fonds d'investissement public","Un emprunt bancaire pour startups"], ans:1, exp:"Le crowdfunding permet de lever des fonds auprès d'un large public via des plateformes (Kickstarter, Ulule). Il peut prendre la forme de dons, de prêts ou de prises de participation. C'est une alternative aux banques." },
+
+  /* ─── HISTOIRE ─── */
+  { theme:"Histoire", q:"Quelle date marque le début de la Première Guerre Mondiale ?", opts:["1870","1914","1918","1939"], ans:1, exp:"La Première Guerre Mondiale éclate en août 1914 après l'assassinat de l'archiduc François-Ferdinand à Sarajevo. Elle durera jusqu'en 1918 et fera plus de 10 millions de morts." },
+  { theme:"Histoire", q:"Qu'est-ce que le krach boursier de 1929 ?", opts:["La faillite de Lehman Brothers","L'effondrement des marchés américains déclenchant la Grande Dépression","La fin de l'étalon-or en Europe","La crise immobilière aux USA"], ans:1, exp:"Le krach de Wall Street en octobre 1929 provoque la Grande Dépression mondiale : chômage massif, faillites en cascade. Il conduit les États à réguler davantage les marchés financiers." },
+  { theme:"Histoire", q:"Qu'est-ce que le Plan Marshall ?", opts:["Un traité de paix après la 2e GM","Un plan américain d'aide pour reconstruire l'Europe après 1945","Un accord commercial USA-URSS","Le plan de débarquement en Normandie"], ans:1, exp:"Le Plan Marshall (1948-1952) : les USA injectent 13 milliards de dollars pour reconstruire l'Europe occidentale. Il renforce l'influence américaine face à l'URSS et relance la croissance européenne." },
+  { theme:"Histoire", q:"Quelle est la date de la chute du Mur de Berlin ?", opts:["1985","1989","1991","1993"], ans:1, exp:"Le Mur de Berlin tombe le 9 novembre 1989. Symbole de la fin de la Guerre Froide et de l'effondrement du bloc soviétique. La réunification allemande suit en 1990." },
+  { theme:"Histoire", q:"Qu'est-ce que la Guerre Froide ?", opts:["Une guerre militaire USA-URSS","Un conflit armé en Europe du Nord","Une période de tension USA-URSS sans conflit direct","La guerre France-Allemagne"], ans:2, exp:"La Guerre Froide (1947-1991) oppose les USA (capitalisme) à l'URSS (communisme) sur les terrains idéologique et technologique, sans affrontement militaire direct entre les deux superpuissances." },
+  { theme:"Histoire", q:"Que s'est-il passé le 11 septembre 2001 ?", opts:["La guerre en Irak a commencé","Des attentats d'Al-Qaïda ont visé les USA — notamment les Tours Jumelles","La chute de Saddam Hussein","L'invasion de l'Afghanistan par la Russie"], ans:1, exp:"Le 11 septembre 2001 : des attentats d'Al-Qaïda frappent New York et Washington. Près de 3000 morts. Cet événement bouleverse la géopolitique mondiale et déclenche la guerre contre le terrorisme." },
+  { theme:"Histoire", q:"Qu'est-ce que la crise financière de 2008 ?", opts:["Une crise agricole mondiale","L'effondrement du système bancaire mondial suite à la faillite de Lehman Brothers","La chute de l'euro","Une crise de la dette grecque"], ans:1, exp:"En 2008, la faillite de Lehman Brothers déclenche une crise financière mondiale. Les États injectent des milliers de milliards pour sauver les banques. Naissance d'une remise en cause du capitalisme financier." },
+  { theme:"Histoire", q:"Quel événement symbolise la fin de la Seconde Guerre Mondiale en Europe ?", opts:["Le débarquement en Normandie (6 juin 1944)","La capitulation de l'Allemagne (8 mai 1945)","La bombe atomique sur Hiroshima","La conférence de Yalta"], ans:1, exp:"Le 8 mai 1945, l'Allemagne nazie capitule sans conditions. C'est la fin de la guerre en Europe (la guerre continue en Asie jusqu'en septembre 1945 avec la capitulation japonaise)." },
+  { theme:"Histoire", q:"Qu'est-ce que Mai 68 ?", opts:["La fin de la guerre d'Algérie","Un mouvement de grèves et manifestations remettant en cause l'autorité et les hiérarchies","L'élection de De Gaulle à la présidence","La crise pétrolière française"], ans:1, exp:"Mai 68 : un mouvement étudiant puis ouvrier qui secoue la France. Remise en cause de l'autorité, des hiérarchies, du travail taylorien. Impact durable sur les droits des femmes et les libertés individuelles." },
+  { theme:"Histoire", q:"Qui a fondé la Ve République française et en quelle année ?", opts:["François Mitterrand en 1981","Charles de Gaulle en 1958","Georges Pompidou en 1969","Napoléon III en 1852"], ans:1, exp:"La Ve République est fondée par Charles de Gaulle en 1958, pendant la crise algérienne. Elle donne un exécutif fort avec un président élu au suffrage universel direct. C'est le régime actuel de la France." },
+  { theme:"Histoire", q:"Qu'est-ce que la Shoah ?", opts:["L'exil des Juifs de Palestine","Le génocide des Juifs d'Europe par les nazis, avec environ 6 millions de victimes","La résistance juive pendant la 2e GM","Les pogroms en Russie tsariste"], ans:1, exp:"La Shoah est le génocide des Juifs d'Europe perpétré par le régime nazi entre 1941 et 1945 : environ 6 millions de Juifs tués dans les camps d'extermination (Auschwitz, Treblinka...). C'est l'un des crimes les plus documentés de l'histoire humaine." },
+  { theme:"Histoire", q:"Qu'est-ce que le New Deal de Roosevelt ?", opts:["Un accord commercial USA-Europe","Un programme de relance économique américain après la Grande Dépression de 1929","La création de la Sécurité Sociale américaine","Un plan de reconstruction de l'Europe"], ans:1, exp:"Le New Deal (1933-1939) est la politique de Roosevelt pour sortir les USA de la Grande Dépression. Il créé des emplois publics, régule les banques et met en place des filets sociaux." },
+  { theme:"Histoire", q:"En quelle année a lieu la révolution bolchevique en Russie ?", opts:["1905","1914","1917","1921"], ans:2, exp:"La révolution d'Octobre 1917 est menée par Lénine et les bolcheviques. Elle renverse le gouvernement provisoire et donne naissance à l'URSS. C'est la 1ère révolution communiste de l'histoire." },
+  { theme:"Histoire", q:"Quelle date marque le début de la Révolution française ?", opts:["1776","1789","1793","1799"], ans:1, exp:"La Révolution française commence le 14 juillet 1789 avec la prise de la Bastille. Elle abolit la monarchie absolue et pose les bases de la République avec les idéaux de Liberté, Égalité, Fraternité." },
+  { theme:"Histoire", q:"Que stipule le Traité de Versailles (1919) ?", opts:["La création de l'ONU","Il impose à l'Allemagne de lourdes réparations après la 1ère GM — souvent cité comme cause indirecte de la montée du nazisme","L'indépendance des colonies africaines","La création de la zone euro"], ans:1, exp:"Le Traité de Versailles (1919) met fin à la 1ère GM et impose à l'Allemagne : payer des réparations énormes, perdre des territoires, réduire son armée. Cette humiliation crée un terreau fertile pour Hitler." },
+  { theme:"Histoire", q:"Dans quelle décennie la grande majorité des pays africains obtiennent-ils leur indépendance ?", opts:["Les années 1940","Les années 1950","Les années 1960","Les années 1970"], ans:2, exp:"1960 est l'Année de l'Afrique : 17 pays africains accèdent à l'indépendance en un an. Avant, le continent était dominé par les empires britannique, français, belge, portugais." },
+  { theme:"Histoire", q:"Quel traité crée officiellement l'Union Européenne ?", opts:["Le Traité de Rome (1957)","Le Traité de Maastricht (1992)","Le Traité de Lisbonne (2007)","L'Accord de Schengen (1985)"], ans:1, exp:"Le Traité de Maastricht (1992) crée officiellement l'Union Européenne. Il établit la citoyenneté européenne, pose les bases de l'euro et approfondit l'intégration politique." },
+  { theme:"Histoire", q:"Qu'est-ce que l'apartheid en Afrique du Sud ?", opts:["Une politique d'ouverture économique","Un régime de ségrégation raciale légale qui a duré de 1948 à 1991","Une guerre civile","Un mouvement d'indépendance"], ans:1, exp:"L'apartheid est un système de ségrégation raciale légale instauré en Afrique du Sud en 1948. Nelson Mandela a combattu ce système, est emprisonné 27 ans et devient président en 1994 après la fin de l'apartheid." },
+  { theme:"Histoire", q:"Quand prend fin la guerre d'Algérie ?", opts:["1954","1958","1962","1968"], ans:2, exp:"La guerre d'Algérie (1954-1962) se conclut par les accords d'Évian le 19 mars 1962. L'Algérie obtient son indépendance après 8 ans de guerre. Ce conflit a profondément marqué la France." },
+  { theme:"Histoire", q:"En quelle année l'URSS se dissout-elle ?", opts:["1989","1990","1991","1993"], ans:2, exp:"L'URSS se dissout le 25 décembre 1991. Elle éclate en 15 républiques indépendantes dont la Russie, l'Ukraine et les pays baltes. Cette dissolution marque la fin de la Guerre Froide." },
+
+  /* ─── GÉOPOLITIQUE ─── */
+  { theme:"Géopolitique", q:"Combien de pays composent l'Union Européenne en 2025 ?", opts:["25","27","28","30"], ans:1, exp:"L'UE compte 27 membres depuis le Brexit (départ du Royaume-Uni en 2020). Des pays candidats comme l'Ukraine pourraient rejoindre l'UE dans les prochaines années." },
+  { theme:"Géopolitique", q:"Qu'est-ce que l'OMC ?", opts:["Organisation Mondiale de la Coopération","Organisation Mondiale du Commerce","Office Mondial des Changes","Organisation des Marchés Communs"], ans:1, exp:"L'OMC régule les échanges commerciaux entre pays et arbitre les conflits commerciaux entre ses 164 membres. Elle promeut le libre-échange à l'échelle mondiale." },
+  { theme:"Géopolitique", q:"Quelle est la monnaie unique européenne et combien de pays l'utilisent ?", opts:["Le franc, 15 pays","L'euro, 20 pays","L'euro, 27 pays","Le mark, 12 pays"], ans:1, exp:"L'euro est utilisé par 20 des 27 pays de l'UE. Les 7 autres ont gardé leur monnaie nationale. L'euro a été introduit en 1999 (échanges financiers) et en 2002 (pièces et billets)." },
+  { theme:"Géopolitique", q:"Quel pays a envahi l'Ukraine en février 2022 ?", opts:["La Biélorussie","La Russie","La Pologne","La Hongrie"], ans:1, exp:"La Russie lance une invasion à grande échelle de l'Ukraine le 24 février 2022. Ce conflit bouleverse la géopolitique européenne, provoque une crise énergétique et force l'UE à renforcer son unité." },
+  { theme:"Géopolitique", q:"Qu'est-ce que le Brexit ?", opts:["L'entrée du Royaume-Uni dans l'UE","La sortie du Royaume-Uni de l'Union Européenne","La réforme de la Constitution britannique","Un accord commercial UK-USA"], ans:1, exp:"Les Britanniques votent pour quitter l'UE en juin 2016. La sortie effective a lieu le 1er janvier 2021. C'est la première fois qu'un pays quitte l'UE. Les conséquences économiques sont encore visibles." },
+  { theme:"Géopolitique", q:"Où se trouve le siège principal de l'ONU ?", opts:["Genève","Paris","Washington D.C.","New York"], ans:3, exp:"Le siège principal de l'ONU est à New York (fondée en 1945). L'ONU regroupe 193 pays membres et a pour mission le maintien de la paix et la coopération internationale." },
+  { theme:"Géopolitique", q:"Qu'est-ce que l'OTAN ?", opts:["Une organisation économique européenne","Une alliance militaire entre pays d'Amérique du Nord et d'Europe","Un traité de libre-échange atlantique","Une organisation humanitaire internationale"], ans:1, exp:"L'OTAN est une alliance militaire fondée en 1949. Principe clé : l'attaque d'un membre est une attaque contre tous. Elle compte 32 membres en 2024 après l'adhésion de la Suède et la Finlande." },
+  { theme:"Géopolitique", q:"Que sont les BRICS ?", opts:["Un traité militaire entre pays émergents","Un groupe de grandes économies émergentes : Brésil, Russie, Inde, Chine, Afrique du Sud et nouveaux membres depuis 2024","Une organisation humanitaire internationale","Un accord de libre-échange en Asie"], ans:1, exp:"Les BRICS regroupent les grandes puissances émergentes. Ils représentent plus de 40% de la population mondiale et cherchent à rééquilibrer la gouvernance mondiale face au G7 occidental. En 2024, de nouveaux membres ont rejoint (Émirats, Égypte, Iran...)." },
+  { theme:"Géopolitique", q:"Quel est l'objectif central de l'Accord de Paris sur le climat (2015) ?", opts:["Réduire les importations de pétrole","Limiter le réchauffement climatique à +1,5°C ou +2°C maximum par rapport à l'ère préindustrielle","Interdire les centrales à charbon dans l'UE","Créer un fonds mondial pour les énergies renouvelables"], ans:1, exp:"L'Accord de Paris (décembre 2015) engage 196 pays à limiter le réchauffement global à 2°C, idéalement 1,5°C. Les scientifiques alertent que les engagements actuels mènent vers +2,7°C." },
+  { theme:"Géopolitique", q:"Quelle est la différence entre un réfugié et un migrant économique ?", opts:["Il n'y a aucune différence légale","Un réfugié fuit une persécution ou un conflit et est protégé par le droit international — un migrant économique cherche de meilleures conditions de vie","Un réfugié est permanent, un migrant est temporaire","Les réfugiés viennent d'Afrique, les migrants d'Asie"], ans:1, exp:"Le réfugié est défini par la Convention de Genève (1951) : il fuit une persécution personnelle (guerre, ethnie, religion). Il a droit à l'asile. Le migrant économique quitte son pays pour des raisons économiques — il n'a pas automatiquement droit à l'asile." },
+  { theme:"Géopolitique", q:"Qu'est-ce que le soft power (puissance douce) ?", opts:["La puissance militaire d'un pays","La capacité d'un pays à influencer les autres par la culture, les valeurs et la diplomatie plutôt que par la force","L'aide au développement internationale","Les sanctions économiques"], ans:1, exp:"Le soft power désigne l'influence non coercitive : culture (Hollywood, K-pop), langue, diplomatie, aide internationale. Les USA excellent en soft power (culture, universités, multinationales). La France utilise la Francophonie et sa culture." },
+  { theme:"Géopolitique", q:"Pourquoi la situation de Taiwan est-elle géopolitiquement tendue ?", opts:["Taiwan possède des réserves de pétrole convoitées","La Chine revendique Taiwan comme province chinoise, et Taiwan produit ~60% des puces électroniques mondiales","Taiwan est membre de l'OTAN","Taiwan est en guerre avec le Japon"], ans:1, exp:"Taiwan est une démocratie de fait mais sans reconnaissance internationale large, car la Chine la considère comme sa province. Taiwan fabrique ~60% des semi-conducteurs avancés mondiaux via TSMC — une invasion déstabiliserait l'économie mondiale." },
+  { theme:"Géopolitique", q:"Qu'est-ce que la COP dans le contexte climatique ?", opts:["Un fonds d'investissement vert","La Conférence des Parties : réunion annuelle des pays signataires de la Convention climat de l'ONU","Un protocole de réduction des émissions contraignant","Un label pour les entreprises éco-responsables"], ans:1, exp:"La COP réunit chaque année les pays signataires de la Convention Climat de l'ONU. COP21 (Paris, 2015) a produit l'Accord de Paris. COP28 (Dubai, 2023) a acté la 'sortie progressive' des énergies fossiles pour la 1ère fois." },
+  { theme:"Géopolitique", q:"Quel est le rôle du FMI ?", opts:["Financer des projets de développement dans les pays pauvres","Accorder des prêts aux pays en difficulté financière et stabiliser l'économie mondiale","Réguler le commerce international","Gérer la monnaie unique européenne"], ans:1, exp:"Le FMI (Fonds Monétaire International) aide les pays en difficulté financière avec des prêts d'urgence, en échange de réformes économiques. Il surveille aussi la stabilité du système financier mondial." },
+
+  /* ─── ACTUALITÉ ─── */
+  { theme:"Actualité", q:"Qu'est-ce que la transition énergétique ?", opts:["Le passage des énergies fossiles aux énergies renouvelables","L'augmentation de la production de pétrole","La privatisation des entreprises d'énergie","Le transport d'électricité entre pays"], ans:0, exp:"La transition énergétique, c'est le passage d'un modèle basé sur les énergies fossiles (pétrole, gaz, charbon) vers les énergies renouvelables (solaire, éolien). C'est l'un des grands enjeux des prochaines décennies." },
+  { theme:"Actualité", q:"Qu'est-ce qu'une licorne dans le monde des startups ?", opts:["Une startup en faillite","Une startup valorisée à plus d'un milliard de dollars","Une entreprise tech cotée en bourse","Une startup fondée par moins de 25 ans"], ans:1, exp:"Une licorne est une startup non cotée en bourse valorisée à plus d'un milliard de dollars. Exemples français : Doctolib, Contentsquare, Mirakl. Il en existe plus de 1000 dans le monde." },
+  { theme:"Actualité", q:"Qu'est-ce que l'économie circulaire ?", opts:["Un modèle basé sur l'exportation","Un système qui minimise les déchets en réutilisant les ressources","Une économie sans croissance","Un modèle de partage entre pays"], ans:1, exp:"L'économie circulaire s'oppose au modèle linéaire (fabriquer-utiliser-jeter). Elle cherche à réduire les déchets en recyclant, réparant et réutilisant. C'est un axe majeur de la RSE des grandes entreprises." },
+  { theme:"Actualité", q:"Qu'est-ce que l'intelligence artificielle générative ?", opts:["Un robot humanoïde","Une IA capable de créer du texte, des images ou du code","Un logiciel de comptabilité automatisée","Un système de surveillance industrielle"], ans:1, exp:"L'IA générative (ChatGPT, Midjourney, Claude) peut créer du contenu original : textes, images, code. Elle transforme de nombreux secteurs et pose des questions sur l'avenir du travail et des droits d'auteur." },
+  { theme:"Actualité", q:"Qu'est-ce que le développement durable ?", opts:["Un développement qui satisfait les besoins présents sans compromettre ceux des générations futures","Une croissance économique la plus rapide possible","Un développement centré uniquement sur l'économie","Une politique de restriction des échanges"], ans:0, exp:"Définition de Brundtland (1987) : le développement durable répond aux besoins du présent sans compromettre les générations futures. Il repose sur 3 piliers : économique, social, environnemental." },
+  { theme:"Actualité", q:"Qu'est-ce que le marché du luxe et qui le domine ?", opts:["Un marché de niche sans croissance, dominé par des PME","Un secteur mondial en forte croissance, dominé par des groupes comme LVMH et Kering","Un marché uniquement européen","Un secteur en déclin face au e-commerce"], ans:1, exp:"Le marché mondial du luxe représente plus de 350 milliards d'euros. Il est dominé par des groupes français : LVMH (Louis Vuitton, Dior, Moët...) et Kering (Gucci, Yves Saint Laurent, Balenciaga). La Chine est le 1er marché de croissance." },
+  { theme:"Actualité", q:"Qu'est-ce que le mouvement #MeToo ?", opts:["Un mouvement pour l'égalité salariale","Un mouvement mondial dénonçant les violences et harcèlements sexuels, notamment dans le monde du travail","Une campagne contre la violence conjugale","Un mouvement pour le droit de vote des femmes"], ans:1, exp:"#MeToo éclate en octobre 2017 après les révélations sur Harvey Weinstein. Des millions de femmes partagent leurs expériences de harcèlement. Il provoque une prise de conscience mondiale et une remise en cause des rapports de pouvoir." },
+  { theme:"Actualité", q:"Qu'est-ce que l'ubérisation de l'économie ?", opts:["La domination mondiale d'Uber sur le transport","La disruption de secteurs traditionnels par des plateformes numériques mettant en relation directe prestataires et clients","La délocalisation des emplois vers les pays émergents","Le remplacement des employés par des robots"], ans:1, exp:"L'ubérisation désigne le bouleversement d'industries établies par des plateformes numériques. Uber défie les taxis, Airbnb les hôtels, Deliveroo les restaurants. Ces plateformes posent des questions sur le statut des travailleurs." },
+  { theme:"Actualité", q:"Que signifient les critères ESG dans l'investissement ?", opts:["Entreprise, Secteur, Géographie","Environnement, Social, Gouvernance — critères pour évaluer la durabilité et l'impact éthique des entreprises","Économie, Stratégie, Gestion","Export, Sous-traitance, Globalisation"], ans:1, exp:"Les critères ESG permettent d'évaluer la responsabilité d'une entreprise : impact carbone, conditions de travail, diversité, transparence. Les investissements ESG se développent fortement car les investisseurs intègrent ces critères dans leurs décisions." },
+  { theme:"Actualité", q:"Qu'est-ce que la souveraineté économique ?", opts:["La capacité d'un pays à exporter plus qu'il n'importe","La capacité d'un pays à contrôler ses secteurs stratégiques sans dépendre de l'étranger","Le droit de fixer ses propres impôts","L'indépendance d'une banque centrale"], ans:1, exp:"La souveraineté économique désigne la capacité d'un pays à maîtriser ses secteurs vitaux : énergie, médicaments, semi-conducteurs, alimentation. Le Covid-19 et la guerre en Ukraine ont relancé ce débat en Europe." },
+  { theme:"Actualité", q:"Qu'est-ce qu'une fake news et quel est son principal danger ?", opts:["Une information vraie mal comprise","Une information délibérément fausse qui peut influencer l'opinion publique et menacer la démocratie","Une information satirique","Une rumeur entre particuliers"], ans:1, exp:"Les fake news sont des informations fausses diffusées intentionnellement, souvent via les réseaux sociaux. Leur danger : manipuler les élections, alimenter la méfiance envers les institutions, favoriser les théories du complot." },
+  { theme:"Actualité", q:"Qu'est-ce que le RGPD ?", opts:["Les droits d'auteur sur internet","Le règlement qui protège les données personnelles des citoyens européens","Les règles des transactions commerciales en ligne","La protection de la propriété intellectuelle des entreprises"], ans:1, exp:"Le RGPD (Règlement Général sur la Protection des Données, 2018) oblige les entreprises à protéger les données personnelles des Européens : consentement explicite, droit d'accès, droit à l'effacement. Amendes pouvant atteindre 4% du CA mondial." },
+
+  /* ─── CULTURE G ─── */
+  { theme:"Culture G", q:"Qu'est-ce que le CAC 40 ?", opts:["Un impôt sur les grandes entreprises","L'indice boursier des 40 plus grandes entreprises françaises cotées à Paris","Le classement des 40 meilleures écoles de commerce","Un fonds d'investissement public"], ans:1, exp:"Le CAC 40 regroupe les 40 entreprises françaises les plus importantes en capitalisation boursière (LVMH, TotalEnergies, L'Oréal...). Il reflète la santé de l'économie française et fluctue chaque jour." },
+  { theme:"Culture G", q:"Qui a fondé LVMH, le premier groupe mondial du luxe ?", opts:["François Pinault","Bernard Arnault","Alain Wertheimer","Jean-Louis Dumas"], ans:1, exp:"Bernard Arnault est le fondateur et PDG de LVMH (Louis Vuitton Moët Hennessy). Il est régulièrement l'homme le plus riche du monde, avec un empire de plus de 75 maisons de luxe." },
+  { theme:"Culture G", q:"Qu'est-ce qu'une ONG ?", opts:["Une Organisation Nationale de Gestion","Une Organisation Non Gouvernementale","Un Office de Négociation des Grèves","Une Organisation de Normalisation en Gestion"], ans:1, exp:"Une ONG est une association privée à but non lucratif qui agit dans l'intérêt général, indépendamment des États. Exemples : Médecins Sans Frontières, Greenpeace, Amnesty International, la Croix-Rouge." },
+  { theme:"Culture G", q:"Quelle est la différence entre chiffre d'affaires et bénéfice ?", opts:["Ce sont des synonymes","Le CA est le total des ventes, le bénéfice est ce qui reste après les charges","Le bénéfice est toujours plus grand que le CA","Le CA inclut les taxes, pas le bénéfice"], ans:1, exp:"Le chiffre d'affaires = total des ventes. Le bénéfice (résultat net) = ce qui reste après toutes les charges (salaires, loyers, matières premières, impôts). Une entreprise peut avoir un grand CA mais peu de bénéfice." },
+  { theme:"Culture G", q:"Qu'est-ce que le marketing mix ou les '4P' ?", opts:["Profit, Perte, Prix, Production","Produit, Prix, Place (distribution), Promotion","Personnel, Processus, Présence, Performance","Positionnement, Publicité, Packaging, Performance"], ans:1, exp:"Le marketing mix ou 4P est un cadre fondamental : Produit (quoi vendre), Prix (à quel tarif), Place (où et comment distribuer), Promotion (comment communiquer). Classique des cours de management et très cité en entretien." },
+  { theme:"Culture G", q:"Qu'est-ce que l'entrepreneuriat social ?", opts:["Une entreprise qui ne fait pas de profit","Une démarche qui utilise les méthodes du business pour résoudre des problèmes sociaux","Une coopérative d'État","Une startup qui reverse 1% de ses bénéfices à des associations"], ans:1, exp:"L'entrepreneuriat social combine logique d'entreprise et mission d'intérêt général. L'objectif principal est l'impact social ou environnemental, pas le profit. Exemples : Veja (chaussures éthiques), Lemon Tri." },
+  { theme:"Culture G", q:"Qu'est-ce que la mondialisation culturelle ?", opts:["L'exportation de produits manufacturés","La diffusion mondiale de pratiques culturelles, modes de vie et valeurs","La traduction de livres en plusieurs langues","L'harmonisation des systèmes éducatifs mondiaux"], ans:1, exp:"La mondialisation culturelle désigne la diffusion planétaire de cultures : musique (K-pop, rap américain), cinéma (Hollywood, Netflix), gastronomie (sushi, burger), réseaux sociaux. Elle est souvent associée à l'américanisation." },
+  { theme:"Culture G", q:"Qu'est-ce qu'une économie de marché ?", opts:["Un système où l'État fixe tous les prix","Un système où l'offre et la demande déterminent les prix via la concurrence","Une économie sans impôts","Un système d'échanges sans monnaie"], ans:1, exp:"Dans une économie de marché, les prix se fixent librement selon l'offre et la demande. C'est le système dominant dans les pays développés, par opposition aux économies planifiées (ex-URSS, Cuba) où l'État contrôle tout." },
+  { theme:"Culture G", q:"Qu'est-ce que le PIB par habitant ?", opts:["Le salaire moyen dans un pays","Le PIB total divisé par la population du pays","Le budget de l'État par citoyen","Le revenu fiscal moyen"], ans:1, exp:"Le PIB par habitant = PIB total / population. C'est un indicateur du niveau de vie moyen. Il permet de comparer des pays de tailles différentes. Mais il ne dit rien sur les inégalités de répartition des richesses." },
+  { theme:"Culture G", q:"Qu'est-ce qu'un investissement direct à l'étranger (IDE) ?", opts:["Un prêt accordé à un pays étranger","Un investissement durable d'une entreprise dans une autre entreprise à l'étranger","L'achat de devises étrangères","Une aide humanitaire internationale"], ans:1, exp:"Un IDE, c'est quand une entreprise investit durablement dans une entreprise ou une usine à l'étranger. C'est un indicateur clé de la mondialisation et de l'attractivité d'un pays." },
+  { theme:"Culture G", q:"Qu'est-ce que le G20 ?", opts:["Un groupe des 20 pays les plus pauvres","Un forum réunissant les 20 principales économies mondiales","Une organisation militaire de 20 pays","Un accord commercial entre 20 nations"], ans:1, exp:"Le G20 regroupe les 20 principales économies mondiales (USA, Chine, UE, Inde, Brésil...). Ils représentent 85% du PIB mondial et coordonnent les réponses aux grandes crises économiques." },
+  { theme:"Culture G", q:"Qu'est-ce que la Francophonie ?", opts:["L'ensemble des pays où on parle français","Une organisation internationale réunissant les pays partageant la langue française","Un programme scolaire français à l'étranger","Le réseau des lycées français à l'étranger"], ans:1, exp:"L'OIF regroupe 88 États et gouvernements partageant la langue française. Plus de 320 millions de personnes parlent français dans le monde — une langue d'affaires et de diplomatie majeure." },
+
+  /* ─── SCIENCES ─── */
+  { theme:"Sciences", q:"Quelle est la principale cause du changement climatique actuel selon le GIEC ?", opts:["L'activité volcanique","Les cycles solaires","Les émissions de gaz à effet de serre d'origine humaine, principalement le CO2 et le méthane","La déforestation seule"], ans:2, exp:"Le GIEC l'affirme avec une certitude de 95% : le réchauffement climatique actuel est d'origine humaine. La combustion de charbon, pétrole et gaz libère du CO2 qui emprisonne la chaleur dans l'atmosphère — c'est l'effet de serre amplifié." },
+  { theme:"Sciences", q:"Qu'est-ce que l'ADN ?", opts:["Un virus informatique","La molécule qui contient l'information génétique de tout être vivant","Une protéine musculaire","Un neurotransmetteur cérébral"], ans:1, exp:"L'ADN (Acide DésoxyriboNucléique) est la molécule qui code le programme génétique de tout être vivant. Sa structure en double hélice a été découverte par Watson et Crick en 1953. Le génome humain contient ~3 milliards de paires de bases." },
+  { theme:"Sciences", q:"Qui a formulé la théorie de l'évolution par sélection naturelle ?", opts:["Albert Einstein","Louis Pasteur","Charles Darwin","Gregor Mendel"], ans:2, exp:"Charles Darwin publie L'Origine des espèces en 1859. Sa théorie : les espèces évoluent par sélection naturelle — les individus les mieux adaptés à leur environnement survivent et se reproduisent davantage. C'est le fondement de la biologie moderne." },
+  { theme:"Sciences", q:"Qu'est-ce que le Big Bang ?", opts:["Une explosion nucléaire à l'origine de la Lune","Le modèle cosmologique décrivant l'origine de l'Univers il y a environ 13,8 milliards d'années","Un phénomène de fusion de deux galaxies","L'explosion d'une étoile supernova"], ans:1, exp:"Le Big Bang est le modèle cosmologique standard : l'Univers a commencé il y a ~13,8 milliards d'années dans un état extrêmement dense et chaud, et s'est expansé depuis. Preuves : le fond diffus cosmologique, l'expansion de l'Univers." },
+  { theme:"Sciences", q:"Que signifie E=mc² ?", opts:["L'énergie d'un objet est liée à sa masse — une petite masse contient une énergie colossale","La vitesse de la lumière dépend de la direction","Le temps est absolu et universel","La matière est composée d'atomes sphériques"], ans:0, exp:"E=mc² signifie que masse et énergie sont équivalentes. Une infime quantité de masse peut libérer une énergie colossale (c = vitesse de la lumière ≈ 300 000 km/s). C'est le principe des bombes atomiques et des réacteurs nucléaires." },
+  { theme:"Sciences", q:"Qu'est-ce que la photosynthèse ?", opts:["La transformation de lumière en énergie électrique","Le processus par lequel les plantes convertissent CO2 + eau + lumière en glucose + oxygène","La croissance des plantes vers la lumière","La décomposition des végétaux en sol fertile"], ans:1, exp:"La photosynthèse est le processus fondamental du vivant : les plantes captent la lumière solaire pour transformer CO2 et eau en glucose (leur énergie) et libèrent de l'oxygène. Sans photosynthèse, pas d'oxygène, pas de vie terrestre." },
+  { theme:"Sciences", q:"Comment fonctionne un vaccin ?", opts:["Il tue directement les bactéries dans le sang","Il stimule le système immunitaire pour qu'il reconnaisse et combatte un agent pathogène en cas de rencontre future","Il renforce les anticorps déjà présents dans l'organisme","Il crée une barrière physique contre les virus"], ans:1, exp:"Un vaccin introduit dans l'organisme un agent pathogène inactivé ou une partie de ce dernier. Le système immunitaire fabrique des anticorps. La vaccination a éliminé la variole et réduit drastiquement polio, rougeole, tétanos." },
+  { theme:"Sciences", q:"Pourquoi l'antibiorésistance est-elle un enjeu de santé majeur ?", opts:["Car les antibiotiques deviennent plus chers à produire","Car l'usage excessif d'antibiotiques crée des bactéries résistantes qui ne peuvent plus être traitées","Car les antibiotiques détruisent le système immunitaire","Car ils sont devenus inefficaces sur les virus"], ans:1, exp:"L'abus d'antibiotiques sélectionne des bactéries résistantes. L'OMS alerte : l'antibiorésistance pourrait tuer 10 millions de personnes par an d'ici 2050, dépassant les cancers. C'est une menace sanitaire mondiale." },
+  { theme:"Sciences", q:"Qu'est-ce qu'un trou noir ?", opts:["Une zone de l'espace sans étoiles","Un objet cosmique d'une densité telle que même la lumière ne peut en échapper","Un phénomène où deux galaxies se heurtent","Une étoile en phase d'expansion"], ans:1, exp:"Un trou noir est une région de l'espace où la gravité est si intense qu'aucune matière ni lumière ne peut s'en échapper. Ils se forment quand une étoile très massive s'effondre. La 1ère photo d'un trou noir a été prise en 2019 (M87)." },
+  { theme:"Sciences", q:"Qu'est-ce que la biodiversité et pourquoi est-elle menacée ?", opts:["La diversité des paysages naturels uniquement","La variété des formes du vivant menacée par la déforestation, la pollution, le changement climatique et l'urbanisation","La diversité des cultures humaines","La variété des plantes cultivées par l'agriculture"], ans:1, exp:"La biodiversité est la variété du vivant. On estime que nous sommes dans la 6e extinction de masse : 1 million d'espèces sont menacées selon l'IPBES. La biodiversité est la base des écosystèmes qui nous nourrissent et nous soignent." },
+  { theme:"Sciences", q:"Comment fonctionne un réseau de neurones artificiels utilisé en IA ?", opts:["Il copie exactement le fonctionnement du cerveau humain neurone par neurone","Il s'inspire du cerveau : des couches de nœuds mathématiques s'ajustent en traitant des millions d'exemples pour apprendre à reconnaître des motifs","Il utilise des algorithmes logiques écrits à la main","Il extrait les données de bases de données préprogrammées"], ans:1, exp:"Un réseau de neurones artificiels (deep learning) est composé de couches de nœuds mathématiques. En s'entraînant sur des millions d'exemples, il apprend des tâches : reconnaissance d'images, traduction, génération de texte (ChatGPT)." },
+  { theme:"Sciences", q:"Qu'est-ce que la radioactivité ?", opts:["L'émission d'ondes radio par des appareils électroniques","Le processus par lequel un noyau atomique instable émet des rayonnements en se transformant","La réflexion des ondes dans un matériau conducteur","La chaleur dégagée par un réacteur nucléaire en fonctionnement normal"], ans:1, exp:"La radioactivité, découverte par Henri Becquerel et Marie Curie, est l'émission spontanée de rayonnements par des noyaux instables. Elle est utilisée en médecine (radiothérapie, imagerie), en énergie nucléaire et dans la datation (carbone 14)." },
+  { theme:"Sciences", q:"Comment fonctionne l'effet de serre ?", opts:["Les serres agricoles réchauffent l'atmosphère","Certains gaz dans l'atmosphère (CO2, méthane) retiennent la chaleur solaire et réchauffent la Terre","Le soleil brûle progressivement la couche d'ozone","Les océans absorbent trop de chaleur solaire"], ans:1, exp:"L'effet de serre naturel est indispensable à la vie sur Terre : sans lui, la température serait -18°C. Des gaz (CO2, méthane, vapeur d'eau) retiennent la chaleur comme une serre. Les émissions humaines amplifient cet effet, provoquant le réchauffement climatique." },
+  { theme:"Sciences", q:"Quelle énergie renouvelable représente la plus grande capacité installée en France ?", opts:["Le solaire","L'hydraulique (barrages)","L'éolien","La biomasse"], ans:1, exp:"L'hydraulique est de loin la principale source d'énergie renouvelable en France avec les grands barrages des Alpes et du Massif Central. La France mise aussi sur le nucléaire (75% de son électricité) pour sa transition bas-carbone." },
+  { theme:"Sciences", q:"Qu'est-ce que la relativité générale d'Einstein apporte à la physique ?", opts:["Elle montre que le son voyage plus vite dans le vide","Elle décrit la gravitation comme une courbure de l'espace-temps causée par la masse","Elle prouve que la Terre est plate à grande échelle","Elle explique pourquoi les atomes sont stables"], ans:1, exp:"La relativité générale (1915) décrit la gravitation non pas comme une force (Newton) mais comme la courbure de l'espace-temps par la masse. Prédictions confirmées : déviation de la lumière par les étoiles, ondes gravitationnelles, GPS (qui doit corriger la dilatation du temps)." },
+
+  /* ─── ARTS & LETTRES ─── */
+  { theme:"Arts & Lettres", q:"Quel roman de Victor Hugo décrit la misère sociale à travers le personnage de Jean Valjean ?", opts:["Notre-Dame de Paris","Les Misérables","Les Contemplations","Le Dernier Jour d'un condamné"], ans:1, exp:"Les Misérables (1862) est l'œuvre maîtresse de Victor Hugo. Jean Valjean, ex-forçat condamné pour avoir volé du pain, cherche à se racheter dans une France inégalitaire. Roman humaniste et social, il reste l'un des livres les plus lus au monde." },
+  { theme:"Arts & Lettres", q:"Qu'est-ce que les Lumières (XVIIIe siècle) ?", opts:["Un courant artistique romantique","Un mouvement intellectuel prônant la raison, la liberté et la critique des pouvoirs établis — base de la démocratie moderne","Un schisme religieux catholique","Un mouvement scientifique positiviste du XIXe siècle"], ans:1, exp:"Les Lumières (Voltaire, Rousseau, Diderot, Montesquieu) révolutionnent la pensée : primauté de la raison sur la foi, liberté individuelle, séparation des pouvoirs, critique de l'absolutisme. L'Encyclopédie en est le symbole." },
+  { theme:"Arts & Lettres", q:"Quel est l'apport majeur de Simone de Beauvoir au féminisme ?", opts:["Elle a fondé le mouvement suffragette en France","Dans Le Deuxième Sexe (1949), elle affirme qu'on ne naît pas femme, on le devient — posant les bases du féminisme moderne","Elle a lancé la grève des femmes de 1970","Elle a rédigé la loi sur l'IVG en France"], ans:1, exp:"'On ne naît pas femme : on le devient' — cette phrase de Simone de Beauvoir est fondatrice : le genre est une construction sociale, pas une fatalité biologique. Le Deuxième Sexe (1949) est considéré comme la bible du féminisme moderne." },
+  { theme:"Arts & Lettres", q:"Qui a donné son nom au mouvement impressionniste ?", opts:["Claude Monet avec Impression, soleil levant","Auguste Renoir avec ses Danseuses","Edgar Degas avec ses Danseuses","Paul Cézanne avec ses natures mortes"], ans:0, exp:"Le terme 'impressionnisme' vient du tableau de Monet 'Impression, soleil levant' (1872), moqué par un critique. Ce mouvement révolutionne la peinture : couleurs vives, coups de pinceau visibles, scènes de la vie moderne en plein air." },
+  { theme:"Arts & Lettres", q:"Quelle est la philosophie de l'absurde selon Camus ?", opts:["L'idée que la vie n'a aucun sens et qu'il vaut mieux mourir","La confrontation entre le besoin humain de sens et le silence irrationnel du monde — et la rébellion comme réponse","Une variante du nihilisme russe","L'idée que seule la religion donne un sens à la vie"], ans:1, exp:"Camus (L'Étranger, Le Mythe de Sisyphe) pose la question : comment vivre dans un monde sans sens ? Sa réponse : se révolter contre l'absurde, choisir la vie malgré tout. 'Il faut imaginer Sisyphe heureux.' Prix Nobel 1957." },
+  { theme:"Arts & Lettres", q:"Qu'est-ce que la Nouvelle Vague au cinéma français ?", opts:["Un mouvement de films de science-fiction des années 1950","Un courant des années 1960 (Godard, Truffaut) qui rompt avec le cinéma classique — tournages en extérieur, improvisation, jeunes acteurs","Le renouveau du cinéma français après la 2e GM","Un mouvement de documentaires sociaux"], ans:1, exp:"La Nouvelle Vague (fin 1950s-1960s) : Truffaut (Les 400 Coups), Godard (À bout de souffle) révolutionnent le cinéma. Caméra à l'épaule, budgets réduits, tournages en ville réelle, liberté narrative. Influence mondiale durable." },
+  { theme:"Arts & Lettres", q:"Quelle est l'œuvre la plus célèbre de Shakespeare, connue pour son dilemme existentiel ?", opts:["Macbeth","Hamlet","Roméo et Juliette","Le Roi Lear"], ans:1, exp:"Hamlet (vers 1600) : 'Être ou ne pas être, telle est la question.' Le prince Hamlet hésite à venger son père assassiné. C'est la pièce la plus jouée au monde. Shakespeare est le plus grand auteur de langue anglaise." },
+  { theme:"Arts & Lettres", q:"Qu'est-ce que le surréalisme ?", opts:["Un courant réaliste de peinture sociale du XIXe siècle","Un mouvement artistique et littéraire des années 1920 explorant l'inconscient, les rêves et l'irrationnel","Un courant cinématographique américain","Un mouvement de peinture abstraite géométrique"], ans:1, exp:"Le surréalisme (Breton, Dali, Magritte, Ernst) cherche à libérer l'inconscient : écriture automatique, images oniriques. Il est influencé par Freud. La Persistance de la mémoire de Dali (montres molles) en est l'image iconique." },
+  { theme:"Arts & Lettres", q:"Qui a peint la Joconde et où est-elle exposée ?", opts:["Michel-Ange, aux Offices de Florence","Léonard de Vinci, au Louvre à Paris","Raphaël, au Vatican","Botticelli, au Metropolitan Museum"], ans:1, exp:"La Joconde (Mona Lisa) est peinte par Léonard de Vinci vers 1503-1519. Elle est exposée au Louvre à Paris depuis 1797. C'est le tableau le plus visité au monde. Son sourire énigmatique et sa technique (sfumato) en font une œuvre unique." },
+  { theme:"Arts & Lettres", q:"Dans quel pays et quelle ville le jazz est-il né ?", opts:["New York, aux États-Unis","La Nouvelle-Orléans, aux États-Unis","Chicago, aux États-Unis","La Havane, à Cuba"], ans:1, exp:"Le jazz naît à La Nouvelle-Orléans au début du XXe siècle, dans la communauté afro-américaine. Il mêle blues, ragtime, musiques africaines. Il évolue vers le swing (Ella Fitzgerald), le bebop (Miles Davis). C'est une grande contribution culturelle américaine." },
+  { theme:"Arts & Lettres", q:"Quelle est la thématique centrale des pièces de Molière ?", opts:["Les amours tragiques de la noblesse","La satire des vices et hypocrisies de la société — avarice, médecine, religion, noblesse","Les aventures militaires des guerres de Louis XIV","La condition paysanne dans la France rurale"], ans:1, exp:"Molière (1622-1673) est le maître de la comédie française. Il critique les travers de ses contemporains : l'avarice (L'Avare), l'hypocrisie religieuse (Tartuffe), la médecine charlatane (Le Malade imaginaire). Ses pièces restent universelles." },
+  { theme:"Arts & Lettres", q:"Quelle est la phrase centrale de l'existentialisme de Sartre ?", opts:["Je pense donc je suis","L'existence précède l'essence — l'homme se définit par ses actes, non par une nature prédéterminée","La vie est un songe","L'homme est la mesure de toutes choses"], ans:1, exp:"Pour Sartre, l'homme n'a pas de nature fixe : il se crée lui-même par ses choix. D'où la liberté absolue — et l'angoisse qui va avec. 'L'existence précède l'essence' est la thèse centrale de L'Être et le Néant (1943)." },
+  { theme:"Arts & Lettres", q:"Combien de Prix Nobel existent-ils ?", opts:["4 (Paix, Littérature, Sciences, Économie)","5 (Physique, Chimie, Médecine, Littérature, Paix)","6 (Physique, Chimie, Médecine, Littérature, Paix, Économie)","7 (avec Mathématiques)"], ans:2, exp:"Il existe 6 Prix Nobel : Physique, Chimie, Médecine/Physiologie, Littérature, Paix et Sciences économiques (ajouté en 1969). Pas de Nobel de Mathématiques (la Fields Medal joue ce rôle). Remis chaque 10 décembre, date de mort d'Alfred Nobel." },
+  { theme:"Arts & Lettres", q:"Quel mouvement artistique Pablo Picasso a-t-il cofondé ?", opts:["L'impressionnisme","Le cubisme","Le fauvisme","Le dadaïsme"], ans:1, exp:"Picasso cofonde le cubisme avec Georges Braque vers 1907. Le cubisme fragmente les formes et représente plusieurs points de vue simultanément. Guernica (1937), peinte en réaction au bombardement nazi d'une ville basque, est son chef-d'œuvre politique." },
+  { theme:"Arts & Lettres", q:"Qu'est-ce que la Renaissance italienne ?", opts:["Une révolution politique en Italie au XVe siècle","Un mouvement artistique et intellectuel en Italie (XIVe-XVIe s.) redécouvrant l'Antiquité gréco-romaine","Un mouvement architectural du XIXe siècle","La réforme de l'Église catholique en Italie"], ans:1, exp:"La Renaissance (XIVe-XVIe siècle) en Italie est un renouveau artistique et intellectuel : redécouverte de l'Antiquité, perspective en peinture, humanisme. Léonard de Vinci, Michel-Ange, Raphaël en sont les maîtres. Elle se diffuse ensuite dans toute l'Europe." },
+  { theme:"Arts & Lettres", q:"Qui a écrit Don Quichotte, considéré comme le premier roman moderne ?", opts:["William Shakespeare","Miguel de Cervantes","Gustave Flaubert","Gabriel García Márquez"], ans:1, exp:"Don Quichotte de la Manche (1605) de Miguel de Cervantes est souvent considéré comme le premier roman moderne. Il raconte les aventures d'un hidalgo qui se prend pour un chevalier après avoir trop lu de romans de chevalerie. Un chef-d'œuvre sur l'illusion et la réalité." },
+
+  /* ─── SPORT ─── */
+  { theme:"Sport", q:"Qui a fondé les Jeux Olympiques modernes et où ont eu lieu les premiers ?", opts:["Baron Pierre de Coubertin, 1896 à Athènes","Adolf Hitler, 1936 à Berlin","Thomas Bach, 1980 à Moscou","Avery Brundage, 1952 à Helsinki"], ans:0, exp:"Pierre de Coubertin refonde les JO modernes : 1ère édition en 1896 à Athènes. Inspiré des jeux antiques grecs, il veut promouvoir la paix par le sport. La devise olympique est 'Plus vite, plus haut, plus fort — ensemble'." },
+  { theme:"Sport", q:"Combien de fois la France a-t-elle remporté la Coupe du Monde de football ?", opts:["1 fois (1998)","2 fois (1998 et 2018)","3 fois (1998, 2018, 2022)","1 fois (2018)"], ans:1, exp:"La France remporte la Coupe du Monde en 1998 (à domicile, finale 3-0 contre le Brésil) et en 2018 (en Russie, finale 4-2 contre la Croatie). En 2022 (Qatar), la France atteint la finale mais perd aux tirs au but contre l'Argentine de Messi." },
+  { theme:"Sport", q:"Sur quelle surface se joue Roland Garros ?", opts:["Gazon","Béton","Terre battue","Moquette"], ans:2, exp:"Roland-Garros est le Grand Chelem de tennis sur terre battue, disputé à Paris fin mai-début juin. Rafael Nadal y a remporté un record de 14 titres. C'est l'un des 4 tournois du Grand Chelem avec Wimbledon, l'US Open et l'Open d'Australie." },
+  { theme:"Sport", q:"Sur combien d'étapes se déroule le Tour de France cycliste ?", opts:["7 étapes","14 étapes","21 étapes","30 étapes"], ans:2, exp:"Le Tour de France se déroule sur 21 étapes (environ 23 jours avec 2 jours de repos), généralement en juillet. Créé en 1903, il parcourt environ 3 300 km à travers la France. C'est l'épreuve sportive annuelle la plus suivie dans le monde." },
+  { theme:"Sport", q:"Quelle cérémonie d'ouverture a marqué les JO de Paris 2024 ?", opts:["La première cérémonie en intérieur dans un stade olympique","La première cérémonie sur l'eau — les athlètes ont défilé sur la Seine en bateaux","La première cérémonie nocturne","La première cérémonie avec des drones uniquement"], ans:1, exp:"Les JO de Paris 2024 (juillet-août 2024) sont marqués par une cérémonie d'ouverture inédite : les délégations ont défilé sur des bateaux sur la Seine. La France termine 5e au classement des médailles avec 16 or." },
+  { theme:"Sport", q:"Quelles nations participent au Tournoi des 6 Nations de rugby ?", opts:["France, Angleterre, Irlande, Écosse, Pays de Galles, Italie","France, Angleterre, Irlande, Écosse, Pays de Galles, Espagne","France, Angleterre, Allemagne, Irlande, Écosse, Pays de Galles","France, Angleterre, Irlande, Écosse, Pays de Galles, Portugal"], ans:0, exp:"Le Tournoi des 6 Nations oppose chaque hiver France, Angleterre, Irlande, Écosse, Pays de Galles et Italie. C'est le plus ancien tournoi international de rugby. Le Grand Chelem (gagner tous les matchs) est la performance ultime." },
+  { theme:"Sport", q:"Quel constructeur automobile cumule le plus de titres en Formule 1 ?", opts:["Mercedes","Ferrari","Red Bull","McLaren"], ans:1, exp:"Ferrari est l'écurie la plus titrée en F1 avec 16 championnats constructeurs, bien que Mercedes et Red Bull aient dominé les années récentes. Max Verstappen a remporté 4 titres consécutifs (2021-2024). Lewis Hamilton détient le record de 7 titres pilotes." },
+  { theme:"Sport", q:"Qu'est-ce que l'e-sport ?", opts:["Un sport pratiqué en réalité virtuelle","Des compétitions de jeux vidéo professionnelles","Un sport en salle en opposition au sport de plein air","Des paris sportifs en ligne"], ans:1, exp:"L'e-sport regroupe les compétitions professionnelles de jeux vidéo (League of Legends, CS:GO, FIFA, Valorant). Les tournois rassemblent des millions de spectateurs en ligne. Les JO reconnaissent progressivement l'e-sport comme discipline." },
+  { theme:"Sport", q:"Quel scandale de dopage a le plus marqué le cyclisme au début des années 2010 ?", opts:["L'affaire Lance Armstrong","L'affaire Richard Virenque","L'affaire Festina","L'affaire Puerto"], ans:0, exp:"Lance Armstrong, 7 fois vainqueur du Tour de France (1999-2005), est déchu de tous ses titres en 2012 après avoir admis s'être dopé systématiquement. C'est le plus grand scandale sportif individuel de l'histoire." },
+  { theme:"Sport", q:"Lors de quel événement les femmes participent-elles pour la 1ère fois aux JO ?", opts:["1896 (Athènes)","1900 (Paris)","1924 (Paris)","1952 (Helsinki)"], ans:1, exp:"Les femmes participent pour la 1ère fois aux JO en 1900 à Paris, en tennis et golf. Elles étaient exclues par Coubertin lui-même. En 2024 à Paris, pour la 1ère fois, les JO sont paritaires dans la délégation française." },
+  { theme:"Sport", q:"Quel événement tragique s'est produit lors des JO de Munich 1972 ?", opts:["Un attentat contre la délégation américaine","La prise d'otages et l'assassinat de 11 membres de la délégation israélienne par des terroristes palestiniens","Le boycott des pays africains","La mort d'un athlète pendant le marathon"], ans:1, exp:"Lors des JO de Munich 1972, l'organisation terroriste Septembre noir prend en otage 11 membres de la délégation olympique israélienne. Tous seront tués. Cet attentat illustre l'instrumentalisation politique des JO et a conduit à un renforcement massif de la sécurité." },
+  { theme:"Sport", q:"Pour quoi Serena Williams est-elle reconnue dans le monde du tennis ?", opts:["Être la seule joueuse à avoir remporté tous les Grand Chelems en une saison","Avoir remporté 23 titres du Grand Chelem — un record en tennis féminin de l'ère Open","Avoir gagné la Fed Cup 10 fois","Être la première femme noire à remporter Wimbledon"], ans:1, exp:"Serena Williams détient le record de 23 titres du Grand Chelem en ère Open (depuis 1968). Avec sa sœur Venus, elle a dominé le tennis mondial pendant 20 ans. Elle est une figure majeure de la lutte pour l'égalité hommes/femmes dans le sport." },
+  { theme:"Sport", q:"Qu'est-ce que le Ballon d'Or ?", opts:["Le trophée du meilleur gardien de but en Ligue des Champions","Le prix du meilleur joueur de football masculin de l'année, décerné par France Football","Le trophée remis au vainqueur de la Coupe du Monde","Une récompense remise par la FIFA au meilleur entraîneur"], ans:1, exp:"Le Ballon d'Or est décerné depuis 1956 par France Football au meilleur joueur masculin de l'année (version féminine depuis 2018). Lionel Messi a remporté le record de 8 Ballons d'Or. Ronaldo en a 5." },
+  { theme:"Sport", q:"Qu'est-ce que les Jeux Paralympiques ?", opts:["Des jeux pour les athlètes amateurs","Des jeux olympiques réservés aux athlètes avec handicap physique ou sensoriel","Des jeux pour les athlètes de moins de 18 ans","Une compétition réservée aux pays en développement"], ans:1, exp:"Les Jeux Paralympiques se tiennent juste après les JO dans les mêmes installations. Ils rassemblent des athlètes avec handicap moteur, visuel ou cognitif. Fondés en 1960, ils ont considérablement évolué et les performances y sont parfois comparables aux valides." },
+  { theme:"Sport", q:"Quel est le sport professionnel qui génère les plus grands revenus mondiaux ?", opts:["Le basketball (NBA)","Le football (soccer)","Le baseball (MLB)","La Formule 1"], ans:1, exp:"Le football est le sport le plus lucratif : revenus globaux >500 milliards d'euros. La Premier League, La Liga et la Ligue des Champions génèrent des milliards. Les droits TV et les transferts (Neymar : 222M€ en 2017) donnent l'échelle des sommes en jeu." },
+];
+</script>
+</body>
+</html>
