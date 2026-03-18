@@ -593,8 +593,8 @@ function renderLeaderboardData() {
   const ranked = stats.filter(s => s.pct !== null);
   const podiumEl = document.getElementById('podium-area');
   if (ranked.length >= 2) {
-    const order = ranked.length >= 3 ? [ranked[1], ranked[0], ranked[2]] : [ranked[0], ranked[1]];
-    const heights = ranked.length >= 3 ? [80, 110, 60] : [90, 110];
+    const order = ranked.length >= 3 ? [ranked[1], ranked[0], ranked[2]] : [ranked[1], ranked[0]];
+    const heights = ranked.length >= 3 ? [80, 110, 60] : [80, 110];
     const sizes   = ranked.length >= 3 ? [44, 56, 38]  : [44, 56];
     podiumEl.innerHTML = `<div class="podium" style="margin-bottom:20px">
       ${order.map((u,i) => `
