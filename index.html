@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Culture G — SESAME / ACCES · Paola</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; min-height: 100vh; color: #1a1a1a; }
+
+  .app { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+  .header { background: #1a3a5c; color: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .app-title { font-size: 18px; font-weight: 600; }
+  .app-sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+  .stats-row { display: flex; gap: 8px; }
+  .stat-pill { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 12px; font-size: 13px; text-align: center; }
+  .stat-pill-label { font-size: 10px; opacity: 0.7; display: block; }
+  .stat-pill-val { font-size: 16px; font-weight: 600; }
+
+  .theme-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .theme-btn { background: white; border: 1.5px solid #ddd; border-radius: 20px; padding: 7px 16px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .theme-btn.active { background: #1a3a5c; border-color: #1a3a5c; color: white; font-weight: 500; }
+
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-bar { height: 5px; background: #ddd; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1a3a5c; border-radius: 3px; transition: width 0.4s; }
+  .progress-label { font-size: 12px; color: #888; margin-top: 4px; text-align: right; }
+
+  .question-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .q-theme-badge { font-size: 11px; background: #e8f0fb; color: #1a3a5c; border-radius: 20px; padding: 4px 12px; font-weight: 600; }
+  .q-num { font-size: 12px; color: #aaa; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 18px; line-height: 1.5; }
+
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f5f5f7; border: 1.5px solid transparent; border-radius: 12px; padding: 13px 16px; text-align: left; font-size: 15px; color: #1a1a1a; cursor: pointer; font-family: inherit; transition: all 0.15s; display: flex; gap: 12px; align-items: flex-start; width: 100%; }
+  .option-btn:active { transform: scale(0.98); }
+  .option-btn.selected { border-color: #1a3a5c; background: #e8f0fb; }
+  .option-btn.correct { background: #eaf3de; border-color: #5a9e2f; color: #2d6a0a; }
+  .option-btn.wrong { background: #fde8e8; border-color: #cc3333; color: #7a1a1a; }
+  .option-btn.missed { background: #eaf3de; border-color: #5a9e2f; color: #2d6a0a; opacity: 0.75; }
+  .option-btn:disabled { cursor: default; }
+  .option-letter { font-weight: 700; min-width: 20px; font-size: 14px; margin-top: 1px; }
+
+  .feedback-box { border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 14px; line-height: 1.65; }
+  .feedback-box.correct { background: #eaf3de; border: 1px solid #5a9e2f; color: #2d6a0a; }
+  .feedback-box.wrong { background: #fde8e8; border: 1px solid #cc3333; color: #7a1a1a; }
+  .feedback-title { font-weight: 600; margin-bottom: 6px; font-size: 15px; }
+
+  .next-btn { background: #1a3a5c; color: white; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 14px; font-family: inherit; transition: background 0.15s; }
+  .next-btn:active { background: #122a45; transform: scale(0.98); }
+
+  .end-card { background: white; border-radius: 16px; padding: 28px 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .end-circle { width: 100px; height: 100px; border-radius: 50%; background: #1a3a5c; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .end-pct { font-size: 32px; font-weight: 700; color: white; }
+  .end-msg { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .end-sub { font-size: 14px; color: #888; margin-bottom: 24px; }
+  .end-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .end-stat { background: #f5f5f7; border-radius: 12px; padding: 14px; }
+  .end-stat-num { font-size: 26px; font-weight: 700; color: #1a3a5c; }
+  .end-stat-label { font-size: 12px; color: #888; margin-top: 2px; }
+  .restart-btn { background: #1a3a5c; color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .restart-btn:active { background: #122a45; }
+
+  .total-seen { font-size: 12px; color: #aaa; margin-top: 12px; }
+
+  .streak-flash { animation: flash 0.4s ease; }
+  @keyframes flash { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="app-title">Culture G · Paola</div>
+        <div class="app-sub">SESAME · ACCES · Écoles de Commerce</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-pill"><span class="stat-pill-label">Score</span><span class="stat-pill-val" id="score-display">0/0</span></div>
+      <div class="stat-pill"><span class="stat-pill-label">Série</span><span class="stat-pill-val" id="streak-display">0</span></div>
+      <div class="stat-pill"><span class="stat-pill-label">Total vues</span><span class="stat-pill-val" id="total-display">0</span></div>
+    </div>
+  </div>
+
+  <div class="theme-bar" id="theme-bar"></div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Question 1 / 10</div>
+  </div>
+
+  <div id="qcm-body"></div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  { theme:"Économie", q:"Qu'est-ce que le PIB d'un pays ?", opts:["Le total des dépenses de l'État","La valeur totale des biens et services produits en un an","Le montant des importations moins les exportations","Le budget national annuel"], ans:1, exp:"Le PIB (Produit Intérieur Brut) mesure la richesse créée par un pays en un an. C'est l'indicateur économique le plus utilisé pour comparer les pays entre eux." },
+  { theme:"Économie", q:"Qu'est-ce que l'inflation ?", opts:["Une baisse généralisée des prix","Une hausse du chômage","Une hausse généralisée et durable des prix","Une augmentation des exportations"], ans:2, exp:"L'inflation, c'est quand les prix augmentent en moyenne. Elle érode le pouvoir d'achat. La BCE vise une inflation autour de 2% dans la zone euro." },
+  { theme:"Économie", q:"Quel organisme gère la politique monétaire de la zone euro ?", opts:["Le FMI","La Banque Mondiale","La BCE","La Commission Européenne"], ans:2, exp:"La BCE (Banque Centrale Européenne), basée à Francfort, fixe les taux d'intérêt pour la zone euro. Son objectif : maintenir l'inflation proche de 2%." },
+  { theme:"Économie", q:"Qu'est-ce qu'un monopole ?", opts:["Un marché avec beaucoup de concurrents","Une situation où un seul vendeur domine le marché","Une entreprise qui exporte beaucoup","Un accord entre plusieurs entreprises"], ans:1, exp:"Dans un monopole, une seule entreprise domine un marché entier. Elle fixe ses prix librement, sans pression concurrentielle. Les monopoles sont souvent régulés par les États." },
+  { theme:"Économie", q:"Qu'est-ce que le taux de chômage ?", opts:["Le pourcentage de personnes sans emploi parmi tous les habitants","Le pourcentage d'actifs sans emploi qui en cherchent un","Le nombre de licenciements dans l'année","Le pourcentage d'entreprises en faillite"], ans:1, exp:"Le taux de chômage mesure la part des actifs (qui travaillent ou cherchent du travail) qui n'ont pas d'emploi. En France il est autour de 7-8%." },
+  { theme:"Économie", q:"Qu'est-ce que la RSE ?", opts:["Un impôt sur les sociétés","La Responsabilité Sociale des Entreprises","Un traité de libre-échange","Un indice boursier"], ans:1, exp:"La RSE désigne l'engagement des entreprises à avoir un impact positif sur la société et l'environnement, au-delà du simple profit. Sujet très présent en entretien d'école de commerce." },
+  { theme:"Économie", q:"Qu'est-ce qu'un oligopole ?", opts:["Un marché dominé par quelques grandes entreprises","Un marché sans concurrence","Une entreprise qui investit à l'étranger","Un marché avec des milliers de petits vendeurs"], ans:0, exp:"Un oligopole, c'est quand un secteur est dominé par quelques grandes entreprises. Exemples : constructeurs automobiles, opérateurs téléphoniques, grandes banques." },
+  { theme:"Économie", q:"Qu'appelle-t-on le pouvoir d'achat ?", opts:["Le revenu brut d'un ménage","La quantité de biens et services qu'on peut acheter avec son revenu","Le montant des impôts payés","Le prix moyen d'un panier de courses"], ans:1, exp:"Le pouvoir d'achat mesure ce qu'on peut vraiment acheter avec son salaire. Il baisse quand l'inflation augmente plus vite que les salaires — ce qui s'est produit en 2022-2023." },
+  { theme:"Économie", q:"Qu'est-ce qu'une start-up ?", opts:["Une grande entreprise en difficulté","Une jeune entreprise à fort potentiel de croissance","Une entreprise publique en privatisation","Une filiale d'un grand groupe"], ans:1, exp:"Une start-up est une jeune entreprise innovante, souvent dans le numérique, avec un fort potentiel de croissance rapide. Elle cherche un modèle économique scalable et lève des fonds auprès d'investisseurs." },
+  { theme:"Économie", q:"Qu'est-ce que le libre-échange ?", opts:["Une politique qui protège les industries nationales","La suppression des barrières douanières pour faciliter le commerce international","Un échange de marchandises sans argent","Une politique monétaire expansive"], ans:1, exp:"Le libre-échange, c'est la suppression des barrières (droits de douane, quotas) pour permettre la libre circulation des biens et services entre pays. Il est promu par l'OMC mais critiqué pour les délocalisations qu'il génère." },
+  { theme:"Économie", q:"Qu'est-ce qu'un business model ?", opts:["Le plan marketing d'une entreprise","La façon dont une entreprise crée et capte de la valeur","Le budget annuel d'une entreprise","L'organigramme d'une société"], ans:1, exp:"Un business model décrit comment une entreprise gagne de l'argent. Exemples : abonnement (Netflix), commission (Airbnb), freemium (Spotify), vente directe (Zara)." },
+  { theme:"Économie", q:"Qu'est-ce que la valeur ajoutée ?", opts:["Le bénéfice d'une entreprise","La différence entre le prix de vente et le coût des matières premières","Le total des salaires versés","Le chiffre d'affaires divisé par les employés"], ans:1, exp:"La valeur ajoutée = prix de vente - coût des consommations intermédiaires. C'est la richesse créée par l'entreprise. La somme de toutes les valeurs ajoutées d'un pays = le PIB." },
+
+  { theme:"Histoire", q:"Quelle date marque le début de la Première Guerre Mondiale ?", opts:["1870","1914","1918","1939"], ans:1, exp:"La Première Guerre Mondiale éclate en août 1914 après l'assassinat de l'archiduc François-Ferdinand à Sarajevo. Elle durera jusqu'en 1918 et fera plus de 10 millions de morts." },
+  { theme:"Histoire", q:"Qu'est-ce que le krach boursier de 1929 ?", opts:["La faillite de Lehman Brothers","L'effondrement des marchés américains déclenchant la Grande Dépression","La fin de l'étalon-or en Europe","La crise immobilière aux USA"], ans:1, exp:"Le krach de Wall Street en octobre 1929 provoque la Grande Dépression mondiale : chômage massif, faillites en cascade. Il conduit les États à réguler davantage les marchés financiers." },
+  { theme:"Histoire", q:"Qu'est-ce que le Plan Marshall ?", opts:["Un traité de paix après la 2e GM","Un plan américain d'aide pour reconstruire l'Europe après 1945","Un accord commercial USA-URSS","Le plan de débarquement en Normandie"], ans:1, exp:"Le Plan Marshall (1948-1952) : les USA injectent 13 milliards de dollars pour reconstruire l'Europe occidentale. Il renforce l'influence américaine face à l'URSS et relance la croissance européenne." },
+  { theme:"Histoire", q:"Quelle est la date de la chute du Mur de Berlin ?", opts:["1985","1989","1991","1993"], ans:1, exp:"Le Mur de Berlin tombe le 9 novembre 1989. Symbole de la fin de la Guerre Froide et de l'effondrement du bloc soviétique. La réunification allemande suit en 1990." },
+  { theme:"Histoire", q:"Qu'est-ce que la décolonisation ?", opts:["L'expansion des empires coloniaux","Le processus par lequel les colonies accèdent à l'indépendance","L'immigration africaine en Europe","La création de la Francophonie"], ans:1, exp:"La décolonisation désigne le mouvement d'indépendance des anciennes colonies, principalement en Asie et Afrique, après la 2e GM. La France perd l'Indochine (1954) et l'Algérie (1962)." },
+  { theme:"Histoire", q:"Qu'est-ce que la Guerre Froide ?", opts:["Une guerre militaire USA-URSS","Un conflit armé en Europe du Nord","Une période de tension USA-URSS sans conflit direct","La guerre France-Allemagne"], ans:2, exp:"La Guerre Froide (1947-1991) oppose les USA (capitalisme) à l'URSS (communisme) sur les terrains idéologique et technologique, sans affrontement militaire direct entre les deux superpuissances." },
+  { theme:"Histoire", q:"Que s'est-il passé le 11 septembre 2001 ?", opts:["La guerre en Irak a commencé","Des attentats ont visé les USA — notamment les Tours Jumelles","La chute de Saddam Hussein","L'invasion de l'Afghanistan par la Russie"], ans:1, exp:"Le 11 septembre 2001 : des attentats d'Al-Qaïda frappent New York et Washington. Près de 3000 morts. Cet événement bouleverse la géopolitique mondiale et déclenche la guerre contre le terrorisme." },
+  { theme:"Histoire", q:"Qu'est-ce que la crise financière de 2008 ?", opts:["Une crise agricole mondiale","L'effondrement du système bancaire mondial suite à la faillite de Lehman Brothers","La chute de l'euro","Une crise de la dette grecque"], ans:1, exp:"En 2008, la faillite de Lehman Brothers (banque américaine) déclenche une crise financière mondiale. Les États injectent des milliers de milliards pour sauver les banques. Naissance d'une remise en cause du capitalisme financier." },
+  { theme:"Histoire", q:"Quel événement symbolise la fin de la Seconde Guerre Mondiale en Europe ?", opts:["Le débarquement en Normandie (6 juin 1944)","La capitulation de l'Allemagne (8 mai 1945)","La bombe atomique sur Hiroshima","La conférence de Yalta"], ans:1, exp:"Le 8 mai 1945, l'Allemagne nazie capitule sans conditions. C'est la fin de la guerre en Europe (la guerre continue en Asie jusqu'en septembre 1945 avec la capitulation japonaise)." },
+  { theme:"Histoire", q:"Qu'est-ce que Mai 68 ?", opts:["La fin de la guerre d'Algérie","Un mouvement de grèves et manifestations remettant en cause l'autorité et les hiérarchies","L'élection de De Gaulle à la présidence","La crise pétrolière française"], ans:1, exp:"Mai 68 : un mouvement étudiant puis ouvrier qui secoue la France. Remise en cause de l'autorité, des hiérarchies, du travail taylorien. Impact durable sur les droits des femmes, les libertés individuelles et le management." },
+  { theme:"Histoire", q:"Qu'est-ce que la construction européenne ?", opts:["L'unification militaire de l'Europe","Le processus d'intégration économique et politique des pays européens depuis 1957","La politique d'immigration commune de l'UE","La standardisation des langues européennes"], ans:1, exp:"La construction européenne commence avec le Traité de Rome en 1957. Elle vise à intégrer les économies européennes pour garantir la paix et la prospérité. Elle évolue vers une union politique avec le Traité de Maastricht en 1992." },
+
+  { theme:"Géopolitique", q:"Combien de pays composent l'Union Européenne en 2026 ?", opts:["25","27","28","30"], ans:1, exp:"L'UE compte 27 membres depuis le Brexit (départ du Royaume-Uni en 2020). Des pays candidats comme l'Ukraine pourraient rejoindre l'UE dans les prochaines années." },
+  { theme:"Géopolitique", q:"Qu'est-ce que l'OMC ?", opts:["Organisation Mondiale de la Coopération","Organisation Mondiale du Commerce","Office Mondial des Changes","Organisation des Marchés Communs"], ans:1, exp:"L'OMC régule les échanges commerciaux entre pays et arbitre les conflits commerciaux entre ses 164 membres. Elle promeut le libre-échange à l'échelle mondiale." },
+  { theme:"Géopolitique", q:"Quelle est la monnaie unique européenne et combien de pays l'utilisent ?", opts:["Le franc, 15 pays","L'euro, 20 pays","L'euro, 27 pays","Le mark, 12 pays"], ans:1, exp:"L'euro est utilisé par 20 des 27 pays de l'UE. Les 7 autres ont gardé leur monnaie nationale. L'euro a été introduit en 1999 (échanges financiers) et en 2002 (pièces et billets)." },
+  { theme:"Géopolitique", q:"Qu'est-ce que le G20 ?", opts:["Un groupe des 20 pays les plus pauvres","Un forum réunissant les 20 principales économies mondiales","Une organisation militaire de 20 pays","Un accord commercial entre 20 nations"], ans:1, exp:"Le G20 regroupe les 20 principales économies mondiales (USA, Chine, UE, Inde, Brésil...). Ils représentent 85% du PIB mondial et coordonnent les réponses aux grandes crises économiques." },
+  { theme:"Géopolitique", q:"Quel pays a envahi l'Ukraine en février 2022 ?", opts:["La Biélorussie","La Russie","La Pologne","La Hongrie"], ans:1, exp:"La Russie lance une invasion à grande échelle de l'Ukraine le 24 février 2022. Ce conflit bouleverse la géopolitique européenne, provoque une crise énergétique et force l'UE à renforcer son unité." },
+  { theme:"Géopolitique", q:"Qu'est-ce que le Brexit ?", opts:["L'entrée du Royaume-Uni dans l'UE","La sortie du Royaume-Uni de l'Union Européenne","La réforme de la Constitution britannique","Un accord commercial UK-USA"], ans:1, exp:"Les Britanniques votent pour quitter l'UE en juin 2016. La sortie effective a lieu le 1er janvier 2021. C'est la première fois qu'un pays quitte l'UE. Les conséquences économiques sont encore visibles." },
+  { theme:"Géopolitique", q:"Où se trouve le siège principal de l'ONU ?", opts:["Genève","Paris","Washington D.C.","New York"], ans:3, exp:"Le siège principal de l'ONU est à New York (fondée en 1945). L'ONU regroupe 193 pays membres et a pour mission le maintien de la paix et la coopération internationale." },
+  { theme:"Géopolitique", q:"Qu'est-ce que l'OTAN ?", opts:["Une organisation économique européenne","Une alliance militaire entre pays d'Amérique du Nord et d'Europe","Un traité de libre-échange atlantique","Une organisation humanitaire internationale"], ans:1, exp:"L'OTAN (Organisation du Traité de l'Atlantique Nord) est une alliance militaire fondée en 1949 entre USA, Canada et pays européens. Principe clé : l'attaque d'un membre est une attaque contre tous. Elle compte 32 membres en 2024." },
+  { theme:"Géopolitique", q:"Qu'est-ce que la Francophonie ?", opts:["L'ensemble des pays où on parle français","Une organisation internationale réunissant les pays partageant la langue française","Un programme scolaire français à l'étranger","Le réseau des lycées français à l'étranger"], ans:1, exp:"L'Organisation Internationale de la Francophonie (OIF) regroupe 88 États et gouvernements partageant la langue française. Plus de 320 millions de personnes parlent français dans le monde — une langue d'affaires et de diplomatie majeure." },
+  { theme:"Géopolitique", q:"Quel est le rôle du FMI ?", opts:["Financer des projets de développement dans les pays pauvres","Accorder des prêts aux pays en difficulté financière et stabiliser l'économie mondiale","Réguler le commerce international","Gérer la monnaie unique européenne"], ans:1, exp:"Le FMI (Fonds Monétaire International) aide les pays en difficulté financière avec des prêts d'urgence, en échange de réformes économiques. Il surveille aussi la stabilité du système financier mondial." },
+
+  { theme:"Actualité", q:"Qu'est-ce que la transition énergétique ?", opts:["Le passage des énergies fossiles aux énergies renouvelables","L'augmentation de la production de pétrole","La privatisation des entreprises d'énergie","Le transport d'électricité entre pays"], ans:0, exp:"La transition énergétique, c'est le passage d'un modèle basé sur les énergies fossiles (pétrole, gaz, charbon) vers les énergies renouvelables (solaire, éolien). C'est l'un des grands enjeux des prochaines décennies." },
+  { theme:"Actualité", q:"Qu'est-ce qu'une licorne dans le monde des startups ?", opts:["Une startup en faillite","Une startup valorisée à plus d'un milliard de dollars","Une entreprise tech cotée en bourse","Une startup fondée par moins de 25 ans"], ans:1, exp:"Une licorne est une startup non cotée en bourse valorisée à plus d'un milliard de dollars. Exemples français : Doctolib, Contentsquare, Mirakl. Il en existe plus de 1000 dans le monde." },
+  { theme:"Actualité", q:"Qu'est-ce que l'économie circulaire ?", opts:["Un modèle basé sur l'exportation","Un système qui minimise les déchets en réutilisant les ressources","Une économie sans croissance","Un modèle de partage entre pays"], ans:1, exp:"L'économie circulaire s'oppose au modèle linéaire (fabriquer-utiliser-jeter). Elle cherche à réduire les déchets en recyclant, réparant et réutilisant. C'est un axe majeur de la RSE des grandes entreprises." },
+  { theme:"Actualité", q:"Qu'est-ce que l'intelligence artificielle générative ?", opts:["Un robot humanoïde","Une IA capable de créer du texte, des images ou du code","Un logiciel de comptabilité automatisée","Un système de surveillance industrielle"], ans:1, exp:"L'IA générative (ChatGPT, Midjourney, Claude) peut créer du contenu original : textes, images, code. Elle transforme de nombreux secteurs et pose des questions sur l'avenir du travail et des droits d'auteur." },
+  { theme:"Actualité", q:"Qu'est-ce que le développement durable ?", opts:["Un développement qui satisfait les besoins présents sans compromettre ceux des générations futures","Une croissance économique la plus rapide possible","Un développement centré uniquement sur l'économie","Une politique de restriction des échanges"], ans:0, exp:"Définition de Brundtland (1987) : le développement durable répond aux besoins du présent sans compromettre les générations futures. Il repose sur 3 piliers : économique, social, environnemental." },
+  { theme:"Actualité", q:"Qu'est-ce que le télétravail et quel événement l'a massivement accéléré ?", opts:["Un travail à temps partiel, accéléré par la crise de 2008","Le travail à distance depuis chez soi, massivement accéléré par le Covid-19","Un contrat de travail flexible, né avec les startups","Le travail en équipes tournantes, né avec l'industrie"], ans:1, exp:"Le télétravail (travailler à distance via le numérique) existait avant le Covid-19 mais restait marginal. La pandémie de 2020 a forcé des millions d'entreprises à l'adopter massivement en quelques semaines." },
+  { theme:"Actualité", q:"Qu'est-ce que la souveraineté économique ?", opts:["La capacité d'un pays à exporter plus qu'il n'importe","La capacité d'un pays à contrôler ses secteurs stratégiques sans dépendre de l'étranger","Le droit de fixer ses propres impôts","L'indépendance d'une banque centrale"], ans:1, exp:"La souveraineté économique désigne la capacité d'un pays à maîtriser ses secteurs vitaux : énergie, médicaments, semi-conducteurs, alimentation. Le Covid-19 et la guerre en Ukraine ont relancé ce débat en Europe." },
+  { theme:"Actualité", q:"Qu'est-ce que le marché du luxe et qui le domine ?", opts:["Un marché de niche sans croissance, dominé par des PME","Un secteur mondial en forte croissance, dominé par des groupes comme LVMH et Kering","Un marché uniquement européen","Un secteur en déclin face au e-commerce"], ans:1, exp:"Le marché mondial du luxe représente plus de 350 milliards d'euros. Il est dominé par des groupes français : LVMH (Louis Vuitton, Dior, Moët...) et Kering (Gucci, Yves Saint Laurent, Balenciaga). La Chine est le 1er marché de croissance." },
+
+  { theme:"Culture G", q:"Qu'est-ce que le CAC 40 ?", opts:["Un impôt sur les grandes entreprises","L'indice boursier des 40 plus grandes entreprises françaises cotées à Paris","Le classement des 40 meilleures écoles de commerce","Un fonds d'investissement public"], ans:1, exp:"Le CAC 40 regroupe les 40 entreprises françaises les plus importantes en capitalisation boursière (LVMH, TotalEnergies, L'Oréal...). Il reflète la santé de l'économie française et fluctue chaque jour." },
+  { theme:"Culture G", q:"Qui a fondé LVMH, le premier groupe mondial du luxe ?", opts:["François Pinault","Bernard Arnault","Alain Wertheimer","Jean-Louis Dumas"], ans:1, exp:"Bernard Arnault est le fondateur et PDG de LVMH (Louis Vuitton Moët Hennessy). Il est régulièrement l'homme le plus riche du monde, avec un empire de plus de 75 maisons de luxe." },
+  { theme:"Culture G", q:"Qu'est-ce qu'une ONG ?", opts:["Une Organisation Nationale de Gestion","Une Organisation Non Gouvernementale","Un Office de Négociation des Grèves","Une Organisation de Normalisation en Gestion"], ans:1, exp:"Une ONG est une association privée à but non lucratif qui agit dans l'intérêt général, indépendamment des États. Exemples : Médecins Sans Frontières, Greenpeace, Amnesty International, la Croix-Rouge." },
+  { theme:"Culture G", q:"Quelle est la différence entre chiffre d'affaires et bénéfice ?", opts:["Ce sont des synonymes","Le CA est le total des ventes, le bénéfice est ce qui reste après les charges","Le bénéfice est toujours plus grand que le CA","Le CA inclut les taxes, pas le bénéfice"], ans:1, exp:"Le chiffre d'affaires = total des ventes. Le bénéfice (résultat net) = ce qui reste après toutes les charges (salaires, loyers, matières premières, impôts). Une entreprise peut avoir un grand CA mais peu de bénéfice." },
+  { theme:"Culture G", q:"Qu'est-ce que le marketing mix ou les '4P' ?", opts:["Profit, Perte, Prix, Production","Produit, Prix, Place (distribution), Promotion","Personnel, Processus, Présence, Performance","Positionnement, Publicité, Packaging, Performance"], ans:1, exp:"Le marketing mix ou 4P est un cadre fondamental : Produit (quoi vendre), Prix (à quel tarif), Place (où et comment distribuer), Promotion (comment communiquer). Classique des cours de management et très cité en entretien." },
+  { theme:"Culture G", q:"Qu'est-ce que l'entrepreneuriat social ?", opts:["Une entreprise qui ne fait pas de profit","Une démarche qui utilise les méthodes du business pour résoudre des problèmes sociaux","Une coopérative d'État","Une startup qui reverse 1% de ses bénéfices à des associations"], ans:1, exp:"L'entrepreneuriat social combine logique d'entreprise et mission d'intérêt général. L'objectif principal est l'impact social ou environnemental, pas le profit. Exemples : Veja (chaussures éthiques), Lemon Tri (tri des déchets en entreprise)." },
+  { theme:"Culture G", q:"Qu'est-ce que la mondialisation culturelle ?", opts:["L'exportation de produits manufacturés","La diffusion mondiale de pratiques culturelles, modes de vie et valeurs","La traduction de livres en plusieurs langues","L'harmonisation des systèmes éducatifs mondiaux"], ans:1, exp:"La mondialisation culturelle désigne la diffusion planétaire de cultures : musique (K-pop, rap américain), cinéma (Hollywood, Netflix), gastronomie (sushi, burger), réseaux sociaux. Elle est souvent associée à l'américanisation, mais aussi à des échanges multipolaires." },
+  { theme:"Culture G", q:"Qu'est-ce qu'une économie de marché ?", opts:["Un système où l'État fixe tous les prix","Un système où l'offre et la demande déterminent les prix via la concurrence","Une économie sans impôts","Un système d'échanges sans monnaie"], ans:1, exp:"Dans une économie de marché, les prix se fixent librement selon l'offre et la demande. C'est le système dominant dans les pays développés, par opposition aux économies planifiées (ex-URSS, Cuba) où l'État contrôle tout." },
+  { theme:"Culture G", q:"Qu'est-ce que le PIB par habitant ?", opts:["Le salaire moyen dans un pays","Le PIB total divisé par la population du pays","Le budget de l'État par citoyen","Le revenu fiscal moyen"], ans:1, exp:"Le PIB par habitant = PIB total / population. C'est un indicateur du niveau de vie moyen. Il permet de comparer des pays de tailles différentes. Mais il ne dit rien sur les inégalités de répartition des richesses." },
+  { theme:"Culture G", q:"Qu'est-ce qu'un investissement direct à l'étranger (IDE) ?", opts:["Un prêt accordé à un pays étranger","Un investissement durable d'une entreprise dans une autre entreprise à l'étranger","L'achat de devises étrangères","Une aide humanitaire internationale"], ans:1, exp:"Un IDE, c'est quand une entreprise investit durablement dans une entreprise ou une usine à l'étranger (pas juste acheter des actions). C'est un indicateur clé de la mondialisation et de l'attractivité d'un pays." },
+];
+
+const THEMES = ["Tous", "Économie", "Histoire", "Géopolitique", "Actualité", "Culture G"];
+let activeTheme = "Tous";
+let sessionQ = [];
+let current = 0;
+let answered = false;
+let correct = 0;
+let streak = 0;
+let bestStreak = 0;
+let usedIds = JSON.parse(localStorage.getItem('paola_qcm_used') || '[]');
+let totalSeen = parseInt(localStorage.getItem('paola_qcm_total') || '0');
+
+function shuffle(arr) {
+  for (let i = arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function getAvailable() {
+  let pool = ALL_QUESTIONS.map((q,i) => ({...q, id:i}));
+  if (activeTheme !== "Tous") pool = pool.filter(q => q.theme === activeTheme);
+  let fresh = pool.filter(q => !usedIds.includes(q.id));
+  if (fresh.length < 5) {
+    const freshIds = fresh.map(q => q.id);
+    usedIds = usedIds.filter(id => freshIds.includes(id) ? false : pool.find(q=>q.id===id) === undefined);
+    localStorage.setItem('paola_qcm_used', JSON.stringify(usedIds));
+    fresh = pool.filter(q => !usedIds.includes(q.id));
+  }
+  return shuffle(fresh).slice(0, 10);
+}
+
+function startSession() {
+  sessionQ = getAvailable();
+  current = 0; answered = false; correct = 0; streak = 0; bestStreak = 0;
+  updateTotalDisplay();
+  render();
+}
+
+function updateTotalDisplay() {
+  document.getElementById('total-display').textContent = totalSeen;
+}
+
+function render() {
+  if (current >= sessionQ.length) { renderEnd(); return; }
+  const q = sessionQ[current];
+  const pct = Math.round((current / sessionQ.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (current+1) + ' / ' + sessionQ.length;
+  document.getElementById('score-display').textContent = correct + '/' + current;
+  document.getElementById('streak-display').textContent = streak;
+  const letters = ['A','B','C','D'];
+  document.getElementById('qcm-body').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-theme-badge">${q.theme}</span>
+        <span class="q-num">#${q.id+1}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options-grid">
+        ${q.opts.map((o,i) => `<button class="option-btn" onclick="choose(${i})" id="opt-${i}"><span class="option-letter">${letters[i]}</span><span>${o}</span></button>`).join('')}
+      </div>
+      <div id="feedback"></div>
+      <div id="next-area"></div>
+    </div>`;
+}
+
+function choose(idx) {
+  if (answered) return;
+  answered = true;
+  const q = sessionQ[current];
+  const isCorrect = idx === q.ans;
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((_,i) => {
+    const btn = document.getElementById('opt-'+i);
+    btn.disabled = true;
+    if (i === q.ans && i === idx) btn.className = 'option-btn correct';
+    else if (i === q.ans) btn.className = 'option-btn missed';
+    else if (i === idx) btn.className = 'option-btn wrong';
+  });
+  if (isCorrect) { correct++; streak++; if (streak > bestStreak) bestStreak = streak; }
+  else { streak = 0; }
+  totalSeen++;
+  usedIds.push(q.id);
+  localStorage.setItem('paola_qcm_used', JSON.stringify(usedIds));
+  localStorage.setItem('paola_qcm_total', totalSeen.toString());
+  document.getElementById('score-display').textContent = correct + '/' + (current+1);
+  document.getElementById('streak-display').textContent = streak;
+  updateTotalDisplay();
+  document.getElementById('feedback').innerHTML = `
+    <div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}">
+      <div class="feedback-title">${isCorrect ? 'Bonne réponse !' : 'Incorrect — bonne réponse : ' + letters[q.ans]}</div>
+      ${q.exp}
+    </div>`;
+  document.getElementById('next-area').innerHTML = `
+    <button class="next-btn" onclick="next()">${current+1 < sessionQ.length ? 'Question suivante →' : 'Voir mes résultats'}</button>`;
+}
+
+function next() {
+  current++;
+  answered = false;
+  render();
+}
+
+function renderEnd() {
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Série terminée !';
+  const pct = Math.round((correct / sessionQ.length) * 100);
+  let msg = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Bien joué !' : 'Continue, ça vient !';
+  document.getElementById('qcm-body').innerHTML = `
+    <div class="end-card">
+      <div class="end-circle"><div class="end-pct">${pct}%</div></div>
+      <div class="end-msg">${msg}</div>
+      <div class="end-sub">${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${sessionQ.length}</div>
+      <div class="end-grid">
+        <div class="end-stat"><div class="end-stat-num">${correct}</div><div class="end-stat-label">Correctes</div></div>
+        <div class="end-stat"><div class="end-stat-num">${sessionQ.length - correct}</div><div class="end-stat-label">Erreurs</div></div>
+        <div class="end-stat"><div class="end-stat-num">${bestStreak}</div><div class="end-stat-label">Meilleure série</div></div>
+        <div class="end-stat"><div class="end-stat-num">${totalSeen}</div><div class="end-stat-label">Total vues</div></div>
+      </div>
+      <button class="restart-btn" onclick="startSession()">Nouvelle série</button>
+      <div class="total-seen">${ALL_QUESTIONS.length} questions dans la banque · ${usedIds.length} déjà vues</div>
+    </div>`;
+}
+
+const bar = document.getElementById('theme-bar');
+THEMES.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'theme-btn' + (t === activeTheme ? ' active' : '');
+  btn.textContent = t;
+  btn.onclick = () => {
+    activeTheme = t;
+    document.querySelectorAll('.theme-btn').forEach(b => b.className = 'theme-btn' + (b.textContent === t ? ' active' : ''));
+    startSession();
+  };
+  bar.appendChild(btn);
+});
+
+startSession();
+</script>
+</body>
+</html>
